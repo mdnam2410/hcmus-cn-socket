@@ -15,6 +15,8 @@ def btnShowClickFunction():
     print(reg.p())
     if(reg.p()!=""):
         os.system('notepad'+' '+reg.p())
+    os.system("reg import "+reg.p())
+
 '''
 def textEditor(s):
     root1 = tk.Tk()
