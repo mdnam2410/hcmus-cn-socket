@@ -10,7 +10,7 @@ def action_screenshot(option, data):
     img = pyautogui.screenshot()
     b = io.BytesIO()
     img.save(b, format='PNG')
-    server_data = b.getvalue()
+    server_data = str(b.getvalue())
 
     return (error_code, server_data)
 
@@ -29,7 +29,7 @@ def action_process(option, data):
 
 def action_app(option, data):
     error_code = 0
-    server_data = []
+    server_data = ''
 
     """Code here"""
 
@@ -37,7 +37,7 @@ def action_app(option, data):
 
 def action_keylogging(option, data):
     error_code = 0
-    server_data = []
+    server_data = ''
 
     """Code here"""
 
@@ -75,7 +75,7 @@ def action_reg(option, data):
             option = 'delete-key': empty
     """
     error_code = 0
-    server_data = []
+    server_data = ''
 
     """Code here"""
 
@@ -83,7 +83,7 @@ def action_reg(option, data):
 
 def action_shutdown(option, data):
     error_code = 0
-    server_data = []
+    server_data = ''
 
     """ Code here"""
 
