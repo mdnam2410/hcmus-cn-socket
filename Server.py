@@ -17,7 +17,7 @@ client_message = b'''process list
 (command, option, client_data) = Util.extract_message(client_message, message_type='client')
 
 error_code = 0
-server_data = []
+server_data = ""
 
 # Check the command variable for task
 if command == 'screenshot':
