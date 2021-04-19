@@ -73,6 +73,7 @@ def action_reg(option, data):
             option = 'delete':     empty
             option = 'create':     empty
             option = 'delete-key': empty
+    type of value in key: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rprn/25cce700-7fcf-4bb6-a2f3-0f6d08430a55
     """
     error_code = 0
     server_data = ''
