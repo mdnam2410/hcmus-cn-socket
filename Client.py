@@ -59,7 +59,12 @@ class ClientApp:
     def __del__(self):
         pass
 
-    def contact_server(self):
+    def contact_server(self, command, option, data):
+        # self.socket.send(package_message(command, option, data))
+        pass
+
+    def get_from_server(self):
+        # return extract_message(self.socket.recv(2**32))
         pass
 
     def run(self):
