@@ -13,12 +13,12 @@ def extract_message(message, message_type='client'):
     return (field1, field2, data_field)
 
 def package_message(field1, field2, data):
-    s = str(field1) + " " + field2 + '\n' + data
+    s = str(field1) + ' ' + field2 + '\n' + data
     return s.encode('utf-8')
 
 error_message_dictionary = {
-    0: "OK",
-    3: "Unrecognized command",
-    200: "Process not running",
-    201: "Cannot kill process"
+    0: 'OK',
+    3: 'Unrecognized command',
+    200: 'Process not running',
+    201: 'Cannot kill process'
 }
