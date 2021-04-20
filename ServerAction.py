@@ -1,3 +1,5 @@
+import ProcessRunning
+
 import io
 import pyautogui
 import wmi
@@ -19,11 +21,7 @@ def action_process(option, data):
     server_data = ''
 
     if option == 'list':
-        f = wmi.WMI()
-        for process in f.Win32_Process():
-            t = (process.ProcessID, process.Name, process.ThreadCount)
-            server_data += f'{t[0]},{t[1]},{t[2]}\n'
-        return (error_code, data)
+        server_data = ProcessRunning.get_running_process()
 
     return (error_code, server_data)
 
