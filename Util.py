@@ -1,5 +1,5 @@
 
-def extract_message(message, message_type='client'):
+def extract_message(message: bytes, message_type='client') -> tuple:
     message = message.decode('utf-8')
     
     # Extract necessary fields
@@ -12,7 +12,7 @@ def extract_message(message, message_type='client'):
     
     return (field1, field2, data_field)
 
-def package_message(field1, field2, data):
+def package_message(field1: str, field2: str, data: str) -> tuple:
     s = str(field1) + ' ' + field2 + '\n' + data
     return s.encode('utf-8')
 
