@@ -49,6 +49,12 @@ class ClientApp:
             font=('arial', 12, 'normal')
         )
 
+        self.btn_keylog = tk.Button(
+            master=self.root,
+            text='Keylogging',
+            command=self.keylogging_command
+        )
+
         self.btn_screenshot = tk.Button(
             master=self.root,
             text='Screenshot',
@@ -66,13 +72,14 @@ class ClientApp:
 
     def receive_reply(self):
         # return Util.extract_message(self.socket.recv(2**32))
-        pass
+        return (0, 'OK', 'Let\'s go\n')
 
     def run(self):
         self.btn_app.pack()
         self.btn_process.pack()
         self.btn_registry.pack()
         self.btn_screenshot.pack()
+        self.btn_keylog.pack()
         self.root.mainloop()
 
     def screenshot_command(self):
@@ -83,6 +90,10 @@ class ClientApp:
         pr = ClientFunction.ProcessRunning(self.root)
         pr.run()
         # pass
+
+    def keylogging_command(self):
+        kl = ClientFunction.KeyloggerWindow(self.root)
+        kl.run()
 
     def show_error_message(self, e):
         self.error_message_box = tk.Tk()
