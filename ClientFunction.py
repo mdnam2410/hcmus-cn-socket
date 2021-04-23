@@ -88,3 +88,99 @@ class ScreenshotWindow(LowerLevel):
         self.btn_show_screenshot.configure(state='disabled')
         self.btn_save_screenshot.configure(state='disabled')
         self.btn_delete_screenshot.configure(state='disabled')
+
+class ProcessRunning(LowerLevel):
+    def __init__(self, top_level_window):
+        super().__init__(top_level_window)
+
+        # Button frame
+        self.frame_get = tk.Frame(
+            master=self.root
+        )
+
+        # Button for getting processes
+        self.btn_get_process = tk.Button(
+            master=self.frame_get,
+            text='Get'
+            # command=
+        )
+        self.btn_get_process.pack()
+
+        # Table of running processes
+        self.table_process = tk.ttk.Treeview(
+            master=self.frame_get,
+        )
+        
+        # Frame for start and kill functions
+        self.frame_start_kill = tk.Frame(
+            master=self.root,
+        )
+
+        # self.label_process_id = tk.Label(
+        #     master=self.frame_start_kill,
+        #     text='Process ID'
+        # )
+
+        # self.entry_process_id = tk.Entry(
+        #     master=self.frame_start_kill,
+        #     text='Enter process ID'
+        # )
+
+        self.btn_start_process = tk.Button(
+            master=self.frame_start_kill,
+            text='Start'
+        )
+        self.btn_start_process.pack()
+
+        self.btn_kill_process = tk.Button(
+            master=self.frame_start_kill,
+            text='Kill'
+        )
+        self.btn_kill_process.pack()
+
+        self.frame_get.pack()
+        self.frame_start_kill.pack()
+
+    def get_process_command(self):
+        self.request('process', 'list', '')
+        (error_code, error_message, server_data) = self.receive_reply()
+
+        if error_code == 0:
+            # TODO: List the processes in the Treeview table object
+            pass
+        else:
+            pass
+            # TODO: Raise an exception for error message box
+
+    def start_process_command(self):
+        self.entry_start_process = tk.Entry(
+            #master=
+        )
+
+        process_name = self.entry_start_process.get()
+
+        self.request('process', 'start', process_name)
+        (error_code, error_message, server_data) = self.receive_reply()
+        if error_code == 0:
+            # TODO: Pop up a 'Process start successfully'
+            pass
+        else:
+            # TODO: Raise an exception
+            pass
+
+    def kill_process_command(self):
+        # TODO: Create a new window, request user for process ID input
+        self.entry_kill_process = tk.Entry(
+            # master=
+        )
+        process_id = self.entry_kill_process.get()
+
+        self.request('process', 'kill', process_id)
+        (error_code, error_message, server_data) = self.receive_reply()
+
+        if error_code == 0:
+            # TODO: Pop up a 'Kill process {process_id} successfully'
+            pass
+        else:
+            # TODO: Raise an exception
+            pass

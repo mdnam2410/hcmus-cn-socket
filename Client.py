@@ -1,4 +1,5 @@
 import ClientFunction
+import Util
 
 import pyautogui
 import socket
@@ -38,7 +39,7 @@ class ClientApp:
             text='Process',
             bg='#F0F8FF',
             font=('arial', 12, 'normal'),
-            # command=btn_process
+            command=self.process_running_command
         )
 
         self.btn_registry = tk.Button(
@@ -59,13 +60,13 @@ class ClientApp:
     def __del__(self):
         pass
 
-    def contact_server(self, command, option, data):
-        # self.socket.send(package_message(command, option, data))
+    def request(self, command, option, data):
+        # self.socket.send(Util.package_message(command, option, data))
         pass
 
-    def get_from_server(self):
-        # return extract_message(self.socket.recv(2**32))
-        pass
+    def receive_reply(self):
+        # return Util.extract_message(self.socket.recv(2**32))
+        return (0, 'OK', '')
 
     def run(self):
         self.btn_app.pack()
@@ -77,6 +78,11 @@ class ClientApp:
     def screenshot_command(self):
         sw = ClientFunction.ScreenshotWindow(self.root)
         sw.run()
+
+    def process_running_command(self):
+        pr = ClientFunction.ProcessRunning(self.root)
+        pr.run()
+        # pass
 
     def show_error_message(self, e):
         self.error_message_box = tk.Tk()
