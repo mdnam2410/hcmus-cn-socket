@@ -66,7 +66,7 @@ class ClientApp:
 
     def receive_reply(self):
         # return Util.extract_message(self.socket.recv(2**32))
-        return (0, 'OK', '')
+        pass
 
     def run(self):
         self.btn_app.pack()
@@ -93,9 +93,4 @@ class ClientApp:
 
 if __name__ == '__main__':
     client_app = ClientApp()
-    try:
-        client_app.run()
-    except Exception as e:
-        # client_app.show_error_message(e)
-        print(e)
-        print(type(e))
+    client_app.run()

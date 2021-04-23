@@ -2,6 +2,7 @@ import Client
 
 import pyautogui
 import tkinter as tk
+import tkinter.ttk as ttk
 
 from PIL import Image, ImageTk
 from tkinter import filedialog
@@ -101,15 +102,29 @@ class ProcessRunning(LowerLevel):
         # Button for getting processes
         self.btn_get_process = tk.Button(
             master=self.frame_get,
-            text='Get'
-            # command=
+            text='Get',
+            command=self.get_process_command
         )
         self.btn_get_process.pack()
 
         # Table of running processes
-        self.table_process = tk.ttk.Treeview(
+        self.table_process = ttk.Treeview(
             master=self.frame_get,
+            columns=('ID', 'Name', 'Count Thread')
         )
+
+        self.table_process.heading('#0', text='Index')
+        self.table_process.heading('#1', text='ID')
+        self.table_process.heading('#2', text='Name')
+        self.table_process.heading('#3', text='Count Thread')
+
+        self.table_process.column('#0', stretch=tk.YES)
+        self.table_process.column('#1', stretch=tk.YES)
+        self.table_process.column('#2', stretch=tk.YES)
+        self.table_process.column('#3', stretch=tk.YES)
+        self.table_process.pack()
+        # Pointer for the table
+        self.table_process_iid = -1
         
         # Frame for start and kill functions
         self.frame_start_kill = tk.Frame(
@@ -141,16 +156,29 @@ class ProcessRunning(LowerLevel):
         self.frame_get.pack()
         self.frame_start_kill.pack()
 
+    def table_clear_all(self):
+        while self.table_process_iid >= 0:
+            self.table_process.delete(self.table_process_iid)
+            self.table_process_iid -= 1
+
     def get_process_command(self):
         self.request('process', 'list', '')
         (error_code, error_message, server_data) = self.receive_reply()
-
+        
+        self.table_clear_all()
         if error_code == 0:
-            # TODO: List the processes in the Treeview table object
-            pass
+            for line in server_data.splitlines():
+                self.table_process_iid += 1
+                t = tuple(line.split(','))
+                self.table_process.insert(
+                    parent='',
+                    index='end',
+                    iid=self.table_process_iid,
+                    text=str(self.table_process_iid + 1),
+                    values=t
+                )
         else:
-            pass
-            # TODO: Raise an exception for error message box
+            tk.messagebox.showwarning('Error', error_message)
 
     def start_process_command(self):
         self.entry_start_process = tk.Entry(
@@ -165,8 +193,7 @@ class ProcessRunning(LowerLevel):
             # TODO: Pop up a 'Process start successfully'
             pass
         else:
-            # TODO: Raise an exception
-            pass
+            tk.messagebox.showwarning('Error', error_message)
 
     def kill_process_command(self):
         # TODO: Create a new window, request user for process ID input
@@ -182,5 +209,4 @@ class ProcessRunning(LowerLevel):
             # TODO: Pop up a 'Kill process {process_id} successfully'
             pass
         else:
-            # TODO: Raise an exception
-            pass
+            tk.messagebox.showwarning('Error', error_message)
