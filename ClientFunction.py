@@ -107,9 +107,14 @@ class ProcessRunning(LowerLevel):
         )
         self.btn_get_process.pack()
 
+        # Container frame for table
+        self.frame_table = tk.Frame(
+            master=self.root,
+        )
+
         # Table of running processes
         self.table_process = ttk.Treeview(
-            master=self.frame_get,
+            master=self.frame_table,
             columns=('ID', 'Name', 'Count Thread')
         )
 
@@ -122,10 +127,17 @@ class ProcessRunning(LowerLevel):
         self.table_process.column('#1', stretch=tk.YES)
         self.table_process.column('#2', stretch=tk.YES)
         self.table_process.column('#3', stretch=tk.YES)
-        self.table_process.pack()
-        # Pointer for the table
-        self.table_process_iid = -1
+        self.table_process.pack(side='left')
+        self.table_process_iid = -1 # Pointer for the table
         
+        # Table scrollbar
+        self.table_process_scrollbar = ttk.Scrollbar(
+            master=self.frame_table,
+            orient='vertical',
+            command=self.table_process.yview
+        )
+        self.table_process_scrollbar.pack(side='right', fill='y')
+
         # Frame for start and kill functions
         self.frame_start_kill = tk.Frame(
             master=self.root,
@@ -154,6 +166,7 @@ class ProcessRunning(LowerLevel):
         self.btn_kill_process.pack()
 
         self.frame_get.pack()
+        self.frame_table.pack()
         self.frame_start_kill.pack()
 
     def table_clear_all(self):
