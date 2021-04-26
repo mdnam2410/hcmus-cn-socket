@@ -313,3 +313,173 @@ class KeyloggerWindow(LowerLevel):
         self.btn_print.configure(state='disabled')
         self.btn_delete.configure(state='disabled')
         self.keystroke_stream = ''
+
+class RegistryWindow(LowerLevel):
+    def __init__(self, top_level_window):
+        super().__init__(top_level_window)
+
+        self.root.grab_set()
+        self.root.title('Registry')
+
+        self.root.rowconfigure(0, weight=1, minsize=75)
+        self.root.rowconfigure(1, weight=1, minsize=75)
+        self.root.rowconfigure(2, weight=1, minsize=10)
+        self.root.columnconfigure(0, weight=1, minsize=50)
+
+        self.initialize_frame1()
+        self.initialize_frame2()
+        self.initialize_frame3()
+
+        self.frame1.grid(row=0, column=0, padx=5, pady=5, sticky='nsew')
+        self.frame2.grid(row=1, column=0, padx=5, pady=5, sticky='nsew')
+        self.frame3.grid(row=2, column=0, padx=5, pady=5, sticky='nsew')
+
+    def initialize_frame1(self):
+        # Frame containing buttons and entries for sending registry files
+        self.frame1 = tk.Frame(
+            master=self.root,
+            relief=tk.GROOVE,
+            borderwidth=1    
+        )
+
+        for i in range(2):
+            for j in range(2):
+                self.frame1.rowconfigure(i, weight=1, minsize=20)
+                self.frame1.columnconfigure(j, weight=1)
+
+        self.entry_browse_registry_file = tk.Entry(
+            master=self.frame1
+        )
+        self.entry_browse_registry_file.grid(row=0, column=0, padx=5, pady=5, sticky='nsew')
+
+        self.btn_browse = tk.Button(
+            master=self.frame1,
+            text='Browse',
+            command=self.command_browse,
+        )
+        self.btn_browse.grid(row=0, column=1, padx=5, pady=5, sticky='nsew')
+
+        self.text_registry_file_content = tk.Text(
+            master=self.frame1,
+            height=5,
+            width=50
+        )
+        self.text_registry_file_content.grid(row=1, column=0, padx=5, pady=5, sticky='nsew')
+
+        self.btn_send_registry_file = tk.Button(
+            master = self.frame1,
+            text='Send',
+            height=10
+            # command
+        )
+        self.btn_send_registry_file.grid(row=1, column=1, padx=5, pady=5, sticky='nsew')
+
+    def initialize_frame2(self):
+        # Frame containing buttons, entries, and dropboxes for modifying registry keys directly
+        self.frame2 = tk.Frame(
+            master=self.root,
+            relief=tk.GROOVE,
+            borderwidth=1
+        )
+
+        self.OPTION_FUNCTIONS = [
+            'Get value',
+            'Set value',
+            'Delete value',
+            'Create key',
+            'Delete key'
+        ]
+
+        self.variable = tk.StringVar(self.root)
+        self.variable.set('Select an option')
+
+        self.menu_function = ttk.Combobox(
+            master=self.frame2,
+            textvariable=self.variable,
+            # *self.OPTION_FUNCTIONS,
+            # command=self.frame2_alternate_widgets
+        )
+        self.menu_function['values'] = self.OPTION_FUNCTIONS
+        self.menu_function.bind('<<ComboboxSelected>>', self.frame2_alternate_widgets)
+        self.menu_function.pack(fill=tk.X, padx=5, pady=5)
+
+        self.entry1 = tk.Entry(
+            master=self.frame2
+        )
+        self.entry1.pack(fill=tk.X, padx=5, pady=5, expand=True)
+        
+        self.frame_wrapper = tk.Frame(
+            master=self.frame2
+        )
+
+        self.entry2 = tk.Entry(
+            master=self.frame_wrapper
+        )
+        self.entry2.pack(side=tk.LEFT, fill=tk.X, padx=5, pady=5, expand=True)
+        
+        self.entry3 = tk.Entry(
+            master=self.frame_wrapper
+        )
+        self.entry3.pack(side=tk.LEFT, fill=tk.X, padx=5, pady=5, expand=True)
+
+        self.OPTION_KEYTYPES = [
+            'String',
+            'Binary',
+            'DWORD',
+            'QWORD',
+            'Multi-String',
+            'Expandable String'
+        ]
+
+        self.variable_keytype = tk.StringVar(self.root)
+        self.variable_keytype.set('Data type')
+
+        self.menu_keytype = ttk.Combobox(
+            master=self.frame_wrapper,
+            textvariable=self.variable_keytype,
+        )
+        self.menu_keytype['values'] = self.OPTION_KEYTYPES
+        self.menu_keytype.pack(side=tk.LEFT, fill=tk.X, padx=5, pady=5, expand=True)
+
+        self.frame_wrapper.pack(fill=tk.X, expand=True)
+
+    def initialize_frame3(self):
+        self.frame3 = tk.Frame(
+            master=self.root,
+            relief=tk.GROOVE,
+            borderwidth=1
+        )
+
+        self.btn_send = tk.Button(
+            master=self.frame3,
+            text='Send',
+            width=10
+        )
+        self.btn_send.pack(side=tk.LEFT, padx=5, pady=5)
+
+        self.btn_delete = tk.Button(
+            master=self.frame3,
+            text='Delete',
+            width=10
+        )
+        self.btn_delete.pack(side=tk.LEFT, padx=5, pady=5)
+
+    def frame2_alternate_widgets(self, event):
+        if self.variable.get() in {'Get value', 'Delete value'}:
+            self.entry3.pack_forget()
+            self.menu_keytype.pack_forget()
+        elif self.variable.get() in {'Create key', 'Delete key'}:
+            self.frame_wrapper.pack_forget()    
+        else:
+            self.entry3.pack()
+            self.menu_keytype.pack()
+            self.frame_wrapper.pack()
+
+    def command_browse(self):
+        path = filedialog.askopenfilename(
+            title='Select registry file',
+            filetypes=(('reg files', '*.reg'), ('All files', '*.*'))
+        )
+        content = open(path).read()
+        self.entry_browse_registry_file.insert(0, path)
+        self.text_registry_file_content.insert('1.0', content)

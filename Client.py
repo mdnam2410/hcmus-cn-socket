@@ -46,7 +46,8 @@ class ClientApp:
             master=self.root,
             text='Registry',
             bg='#F0F8FF',
-            font=('arial', 12, 'normal')
+            font=('arial', 12, 'normal'),
+            command=self.registry_command
         )
 
         self.btn_keylog = tk.Button(
@@ -94,6 +95,10 @@ class ClientApp:
     def keylogging_command(self):
         kl = ClientFunction.KeyloggerWindow(self.root)
         kl.run()
+
+    def registry_command(self):
+        r = ClientFunction.RegistryWindow(self.root)
+        r.run()
 
     def show_error_message(self, e):
         self.error_message_box = tk.Tk()
