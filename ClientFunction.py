@@ -8,23 +8,23 @@ from PIL import Image, ImageTk
 from tkinter import filedialog
 
 
-class LowerLevel(Client.ClientApp):
+class FunctionWindow(Client.ClientApp):
     def __init__(self, top_level_window):
-        self.root = tk.Toplevel(top_level_window)
+        self.window = tk.Toplevel(top_level_window)
     
     def run(self):
-        self.root.mainloop()
+        self.window.mainloop()
 
-class ScreenshotWindow(LowerLevel):
+class ScreenshotWindow(FunctionWindow):
     def __init__(self, top_level_window):
         super().__init__(top_level_window)
 
         # Focus
-        self.root.grab_set()
-        self.root.title('Sreenshot')
+        self.window.grab_set()
+        self.window.title('Sreenshot')
 
         self.btn_frame = tk.Frame(
-            master=self.root
+            master=self.window
         )
 
         # Buttons
@@ -53,7 +53,7 @@ class ScreenshotWindow(LowerLevel):
         )
 
         # Canvas for showing screenshot
-        self.canvas = tk.Canvas(master=self.root)
+        self.canvas = tk.Canvas(master=self.window)
         
         self.btn_frame.pack()
         
@@ -90,13 +90,13 @@ class ScreenshotWindow(LowerLevel):
         self.btn_save_screenshot.configure(state='disabled')
         self.btn_delete_screenshot.configure(state='disabled')
 
-class ProcessRunning(LowerLevel):
+class ProcessWindow(FunctionWindow):
     def __init__(self, top_level_window):
         super().__init__(top_level_window)
 
         # Button frame
         self.frame_get = tk.Frame(
-            master=self.root
+            master=self.window
         )
 
         # Button for getting processes
@@ -109,7 +109,7 @@ class ProcessRunning(LowerLevel):
 
         # Container frame for table
         self.frame_table = tk.Frame(
-            master=self.root,
+            master=self.window,
         )
 
         # Table of running processes
@@ -140,7 +140,7 @@ class ProcessRunning(LowerLevel):
 
         # Frame for start and kill functions
         self.frame_start_kill = tk.Frame(
-            master=self.root,
+            master=self.window,
         )
 
         # self.label_process_id = tk.Label(
@@ -224,13 +224,13 @@ class ProcessRunning(LowerLevel):
         else:
             tk.messagebox.showwarning('Error', error_message)
 
-class KeyloggerWindow(LowerLevel):
+class KeyloggerWindow(FunctionWindow):
     def __init__(self, top_level_window):
         super().__init__(top_level_window)
 
         # Frame for buttons
         self.frame_button = tk.Frame(
-            master=self.root,
+            master=self.window,
         )
 
         self.btn_hook = tk.Button(
@@ -265,7 +265,7 @@ class KeyloggerWindow(LowerLevel):
         self.btn_delete.pack()
 
         self.text = tk.Text(
-            master=self.root,
+            master=self.window,
             padx=5,
             pady=5,
             state='disabled' # No text entry
@@ -314,17 +314,17 @@ class KeyloggerWindow(LowerLevel):
         self.btn_delete.configure(state='disabled')
         self.keystroke_stream = ''
 
-class RegistryWindow(LowerLevel):
+class RegistryWindow(FunctionWindow):
     def __init__(self, top_level_window):
         super().__init__(top_level_window)
 
-        self.root.grab_set()
-        self.root.title('Registry')
+        self.window.grab_set()
+        self.window.title('Registry')
 
-        self.root.rowconfigure(0, weight=1, minsize=75)
-        self.root.rowconfigure(1, weight=1, minsize=75)
-        self.root.rowconfigure(2, weight=1, minsize=10)
-        self.root.columnconfigure(0, weight=1, minsize=50)
+        self.window.rowconfigure(0, weight=1, minsize=75)
+        self.window.rowconfigure(1, weight=1, minsize=75)
+        self.window.rowconfigure(2, weight=1, minsize=10)
+        self.window.columnconfigure(0, weight=1, minsize=50)
 
         self.initialize_frame1()
         self.initialize_frame2()
@@ -337,7 +337,7 @@ class RegistryWindow(LowerLevel):
     def initialize_frame1(self):
         # Frame containing buttons and entries for sending registry files
         self.frame1 = tk.Frame(
-            master=self.root,
+            master=self.window,
             relief=tk.GROOVE,
             borderwidth=1    
         )
@@ -377,7 +377,7 @@ class RegistryWindow(LowerLevel):
     def initialize_frame2(self):
         # Frame containing buttons, entries, and dropboxes for modifying registry keys directly
         self.frame2 = tk.Frame(
-            master=self.root,
+            master=self.window,
             relief=tk.GROOVE,
             borderwidth=1
         )
@@ -390,7 +390,7 @@ class RegistryWindow(LowerLevel):
             'Delete key'
         ]
 
-        self.variable = tk.StringVar(self.root)
+        self.variable = tk.StringVar(self.window)
         self.variable.set('Select an option')
 
         self.menu_function = ttk.Combobox(
@@ -431,7 +431,7 @@ class RegistryWindow(LowerLevel):
             'Expandable String'
         ]
 
-        self.variable_keytype = tk.StringVar(self.root)
+        self.variable_keytype = tk.StringVar(self.window)
         self.variable_keytype.set('Data type')
 
         self.menu_keytype = ttk.Combobox(
@@ -445,7 +445,7 @@ class RegistryWindow(LowerLevel):
 
     def initialize_frame3(self):
         self.frame3 = tk.Frame(
-            master=self.root,
+            master=self.window,
             relief=tk.GROOVE,
             borderwidth=1
         )
