@@ -88,7 +88,7 @@ class ClientApp:
         sw.run()
 
     def process_running_command(self):
-        pr = ClientFunction.ProcessRunning(self.root)
+        pr = ClientFunction.ProcessWindow(self.root)
         pr.run()
         # pass
 

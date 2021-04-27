@@ -94,18 +94,41 @@ class ProcessWindow(FunctionWindow):
     def __init__(self, top_level_window):
         super().__init__(top_level_window)
 
+        self.window.rowconfigure(0, weight=1, minsize=10)
+        self.window.rowconfigure(1, weight=1, minsize=50)
+
         # Button frame
-        self.frame_get = tk.Frame(
+        self.frame_buttons = tk.Frame(
             master=self.window
         )
 
-        # Button for getting processes
-        self.btn_get_process = tk.Button(
-            master=self.frame_get,
+        self.btn_get = tk.Button(
+            master=self.frame_buttons,
             text='Get',
             command=self.get_process_command
         )
-        self.btn_get_process.pack()
+        self.btn_get.pack(side=tk.LEFT, fill=tk.X, padx=5, pady=5, expand=True)
+
+        self.btn_delete = tk.Button(
+            master=self.frame_buttons,
+            text='Delete',
+            command=self.delete_command
+        )
+        self.btn_delete.pack(side=tk.LEFT, fill=tk.X, padx=5, pady=5, expand=True)
+
+        self.btn_start = tk.Button(
+            master=self.frame_buttons,
+            text='Start',
+            command=self.start_process_command
+        )
+        self.btn_start.pack(side=tk.LEFT, fill=tk.X, padx=5, pady=5, expand=True)
+
+        self.btn_kill = tk.Button(
+            master=self.frame_buttons,
+            text='Kill',
+            command=self.kill_process_command
+        )
+        self.btn_kill.pack(side=tk.LEFT, fill=tk.X, padx=5, pady=5, expand=True)
 
         # Container frame for table
         self.frame_table = tk.Frame(
@@ -115,19 +138,17 @@ class ProcessWindow(FunctionWindow):
         # Table of running processes
         self.table_process = ttk.Treeview(
             master=self.frame_table,
-            columns=('ID', 'Name', 'Count Thread')
+            columns=('ID', 'Name', 'Count Thread'),
         )
+        self.table_process['show'] = 'headings'
 
-        self.table_process.heading('#0', text='Index')
         self.table_process.heading('#1', text='ID')
         self.table_process.heading('#2', text='Name')
         self.table_process.heading('#3', text='Count Thread')
-
-        self.table_process.column('#0', stretch=tk.YES)
         self.table_process.column('#1', stretch=tk.YES)
         self.table_process.column('#2', stretch=tk.YES)
         self.table_process.column('#3', stretch=tk.YES)
-        self.table_process.pack(side='left')
+        self.table_process.pack(side='left', fill='y', expand=True)
         self.table_process_iid = -1 # Pointer for the table
         
         # Table scrollbar
@@ -137,40 +158,11 @@ class ProcessWindow(FunctionWindow):
             command=self.table_process.yview
         )
         self.table_process_scrollbar.pack(side='right', fill='y')
+        
+        self.frame_buttons.grid(row=0, column=0, padx=5, pady=5)
+        self.frame_table.grid(row=1, column=0, padx=5, pady=5)
 
-        # Frame for start and kill functions
-        self.frame_start_kill = tk.Frame(
-            master=self.window,
-        )
-
-        # self.label_process_id = tk.Label(
-        #     master=self.frame_start_kill,
-        #     text='Process ID'
-        # )
-
-        # self.entry_process_id = tk.Entry(
-        #     master=self.frame_start_kill,
-        #     text='Enter process ID'
-        # )
-
-        self.btn_start_process = tk.Button(
-            master=self.frame_start_kill,
-            text='Start',
-            command=self.start_process_command
-        )
-        self.btn_start_process.pack()
-
-        self.btn_kill_process = tk.Button(
-            master=self.frame_start_kill,
-            text='Kill'
-        )
-        self.btn_kill_process.pack()
-
-        self.frame_get.pack()
-        self.frame_table.pack()
-        self.frame_start_kill.pack()
-
-    def table_clear_all(self):
+    def delete_command(self):
         while self.table_process_iid >= 0:
             self.table_process.delete(self.table_process_iid)
             self.table_process_iid -= 1
@@ -179,7 +171,7 @@ class ProcessWindow(FunctionWindow):
         self.request('process', 'list', '')
         (error_code, error_message, server_data) = self.receive_reply()
         
-        self.table_clear_all()
+        self.delete_command()
         if error_code == 0:
             for line in server_data.splitlines():
                 self.table_process_iid += 1
@@ -188,41 +180,64 @@ class ProcessWindow(FunctionWindow):
                     parent='',
                     index='end',
                     iid=self.table_process_iid,
-                    text=str(self.table_process_iid + 1),
                     values=t
                 )
         else:
             tk.messagebox.showwarning('Error', error_message)
 
     def start_process_command(self):
-        self.entry_start_process = tk.Entry(
-            #master=
+        w = tk.Toplevel(self.window)
+        w.title('Start process')
+    
+        def get():
+            process_name = entry_start_process.get()
+            self.request('process', 'start', process_name)
+            (error_code, error_message, server_data) = self.receive_reply()
+            w.destroy()
+            if error_code == 0:
+                tk.messagebox.showinfo('Start process', f'Start {process_name} successfully')
+            else:
+                tk.messagebox.showwarning('Error', error_message)
+        
+        entry_start_process = tk.Entry(
+            master=w,
+            text='Enter process name'
         )
-
-        # process_name = self.entry_start_process.get()
-        process_name = 'abc'
-
-        self.request('process', 'start', process_name)
-        (error_code, error_message, server_data) = self.receive_reply()
-        if error_code == 0:
-            tk.messagebox.showinfo('Start process', f'Start {process_name} successfully')
-        else:
-            tk.messagebox.showwarning('Error', error_message)
+        entry_start_process.pack(side=tk.LEFT)
+        btn_send = tk.Button(
+            master=w,
+            text='Start',
+            command = get
+        )
+        btn_send.pack(side=tk.LEFT)
+        w.mainloop()
+        
 
     def kill_process_command(self):
-        # TODO: Create a new window, request user for process ID input
-        self.entry_kill_process = tk.Entry(
-            # master=
+        w = tk.Toplevel(self.window)
+        w.title('Kill process')
+
+        def kill():
+            process_id = entry_kill_process.get()
+            self.request('process', 'kill', process_id)
+            (error_code, error_message, server_data) = self.receive_reply()
+            w.destroy()
+            if error_code == 0:
+                tk.messagebox.showinfo('Kill process', f'Kill process ID {process_id} successfully')
+            else:
+                tk.messagebox.showwarning('Error', error_message)
+            
+        entry_kill_process = tk.Entry(
+            master=w
         )
-        process_id = self.entry_kill_process.get()
-
-        self.request('process', 'kill', process_id)
-        (error_code, error_message, server_data) = self.receive_reply()
-
-        if error_code == 0:
-            tk.messagebox.showinfo('Kill process', f'Kill process ID {process_id} successfully')
-        else:
-            tk.messagebox.showwarning('Error', error_message)
+        entry_kill_process.pack(side=tk.LEFT, padx=5, pady=5, fill=tk.X, expand=True)
+        btn_kill = tk.Button(
+            master=w,
+            text='Kill',
+            command=kill
+        )
+        btn_kill.pack(side=tk.LEFT, padx=5, pady=5, fill=tk.X, expand=True)
+        w.mainloop()
 
 class KeyloggerWindow(FunctionWindow):
     def __init__(self, top_level_window):
