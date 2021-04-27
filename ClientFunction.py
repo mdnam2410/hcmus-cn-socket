@@ -486,8 +486,8 @@ class RegistryWindow(FunctionWindow):
         elif self.variable.get() in {'Create key', 'Delete key'}:
             self.frame_wrapper.pack_forget()    
         else:
-            self.entry3.pack()
-            self.menu_keytype.pack()
+            self.entry3.pack(side=tk.LEFT, fill=tk.X, padx=5, pady=5, expand=True)
+            self.menu_keytype.pack(side=tk.LEFT, fill=tk.X, padx=5, pady=5, expand=True)
             self.frame_wrapper.pack()
 
     def command_browse(self):
