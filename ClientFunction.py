@@ -274,7 +274,6 @@ class KeyloggingWindow(FunctionWindow):
         self.btn_delete = tk.Button(
             master=self.frame_button,
             text='Delete',
-            state='disabled',
             command=self.delete_command
         )
         self.btn_delete.pack(side=tk.LEFT, padx=5, pady=5)
@@ -297,7 +296,6 @@ class KeyloggingWindow(FunctionWindow):
         (error_code, error_message, server_data) = self.receive_reply()
         
         if error_code == 0:
-            self.keystroke_stream += server_data
             self.btn_hook.configure(state='disabled')
             self.btn_unhook.configure(state='active')
         else:
@@ -308,15 +306,18 @@ class KeyloggingWindow(FunctionWindow):
         (error_code, error_message, server_data) = self.receive_reply()
 
         if error_code == 0:
+            self.keystroke_stream += server_data
             self.btn_hook.configure(state='active')
+            self.btn_unhook.configure(state='disabled')
             self.btn_print.configure(state='active')
-            self.btn_delete.configure(state='active')
         else:
             tk.messagebox.showwarning('Error', error_message)
 
     def print_command(self):
         self.text.configure(state='normal')
         self.text.insert(1.0, self.keystroke_stream)
+        self.keystroke_stream = ''
+        self.btn_print.configure(state='disabled')
         self.text.configure(state='disabled')
 
     def delete_command(self):
@@ -324,10 +325,9 @@ class KeyloggingWindow(FunctionWindow):
         self.text.delete(1.0, tk.END)
         self.text.configure(state='disabled')
 
-        self.btn_unhook.configure(state='disabled')
-        self.btn_print.configure(state='disabled')
-        self.btn_delete.configure(state='disabled')
-        self.keystroke_stream = ''
+        # self.btn_unhook.configure(state='disabled')
+        # self.btn_print.configure(state='disabled')
+        # self.btn_delete.configure(state='disabled')
 
 class RegistryWindow(FunctionWindow):
     def __init__(self, top_level_window):
