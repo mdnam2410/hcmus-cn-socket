@@ -405,12 +405,12 @@ class RegistryWindow(FunctionWindow):
             'Delete key'
         ]
 
-        self.variable = tk.StringVar(self.window)
-        self.variable.set('Select an option')
+        self.variable_commandtype = tk.StringVar(self.window)
+        self.variable_commandtype.set('Select an option')
 
         self.menu_function = ttk.Combobox(
             master=self.frame2,
-            textvariable=self.variable,
+            textvariable=self.variable_commandtype,
             # *self.OPTION_FUNCTIONS,
             # command=self.frame2_alternate_widgets
         )
@@ -458,6 +458,13 @@ class RegistryWindow(FunctionWindow):
 
         self.frame_wrapper.pack(fill=tk.X, expand=True)
 
+        self.text_result = tk.Text(
+            master=self.frame2,
+            height=8
+        )
+        self.text_result.configure(state='disabled')
+        self.text_result.pack(fill=tk.X, expand=True)
+
     def initialize_frame3(self):
         self.frame3 = tk.Frame(
             master=self.window,
@@ -468,7 +475,8 @@ class RegistryWindow(FunctionWindow):
         self.btn_send = tk.Button(
             master=self.frame3,
             text='Send',
-            width=10
+            width=10,
+            command=self.send_command
         )
         self.btn_send.pack(side=tk.LEFT, padx=5, pady=5)
 
@@ -480,10 +488,10 @@ class RegistryWindow(FunctionWindow):
         self.btn_delete.pack(side=tk.LEFT, padx=5, pady=5)
 
     def frame2_alternate_widgets(self, event):
-        if self.variable.get() in {'Get value', 'Delete value'}:
+        if self.variable_commandtype.get() in {'Get value', 'Delete value'}:
             self.entry3.pack_forget()
             self.menu_keytype.pack_forget()
-        elif self.variable.get() in {'Create key', 'Delete key'}:
+        elif self.variable_commandtype.get() in {'Create key', 'Delete key'}:
             self.frame_wrapper.pack_forget()    
         else:
             self.entry3.pack(side=tk.LEFT, fill=tk.X, padx=5, pady=5, expand=True)
@@ -498,3 +506,44 @@ class RegistryWindow(FunctionWindow):
         content = open(path).read()
         self.entry_browse_registry_file.insert(0, path)
         self.text_registry_file_content.insert('1.0', content)
+
+    def send_registry_file_command(self):
+        content = self.text_registry_file_content.get('1.0', tk.END)
+        self.request('registry', 'send', content)
+        (error_code, error_message, server_data) = self.receive_reply()
+        if error_code == 0:
+            tk.messagebox.showinfo('Success', 'Success')
+        else:
+            tk.messagebox.showerror('Error', error_message)
+    
+    def send_command(self):
+        option = self.variable_commandtype.get()
+        c, v = option.split(' ')
+        option = c.lower()
+        if v == 'key':
+            option += '-' + v
+        
+        path = self.entry1.get()
+        key = self.entry2.get()
+        value = self.entry3.get()
+        key_type = self.variable_keytype.get()
+
+        if v != 'key':
+            path = path + '\\' + key
+
+        if option == 'set':
+            client_data = path + ',' + value + ',' + key_type + '\n'
+        else:
+            client_data = path
+
+        self.request('reg', option, client_data)
+        error_code, error_message, server_data = self.receive_reply()
+        if error_code == 0:
+            if option == 'get':
+                self.text_result.configure(state='normal')
+                self.text_result.insert('1.0', server_data)
+                self.text_result.configure(state='disabled')
+            else:
+                tk.messagebox.showinfo('Success', 'Nice!')
+        else:
+            tk.messagebox.showerror('Error', error_message)
