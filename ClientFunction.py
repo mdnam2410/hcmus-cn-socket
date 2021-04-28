@@ -105,7 +105,7 @@ class ProcessWindow(FunctionWindow):
         self.btn_get = tk.Button(
             master=self.frame_buttons,
             text='Get',
-            command=self.get_process_command
+            command=self.get_command
         )
         self.btn_get.pack(side=tk.LEFT, fill=tk.X, padx=5, pady=5, expand=True)
 
@@ -119,14 +119,14 @@ class ProcessWindow(FunctionWindow):
         self.btn_start = tk.Button(
             master=self.frame_buttons,
             text='Start',
-            command=self.start_process_command
+            command=self.start_command
         )
         self.btn_start.pack(side=tk.LEFT, fill=tk.X, padx=5, pady=5, expand=True)
 
         self.btn_kill = tk.Button(
             master=self.frame_buttons,
             text='Kill',
-            command=self.kill_process_command
+            command=self.kill_command
         )
         self.btn_kill.pack(side=tk.LEFT, fill=tk.X, padx=5, pady=5, expand=True)
 
@@ -136,38 +136,38 @@ class ProcessWindow(FunctionWindow):
         )
 
         # Table of running processes
-        self.table_process = ttk.Treeview(
+        self.table = ttk.Treeview(
             master=self.frame_table,
             columns=('ID', 'Name', 'Count Thread'),
         )
-        self.table_process['show'] = 'headings'
+        self.table['show'] = 'headings'
 
-        self.table_process.heading('#1', text='ID')
-        self.table_process.heading('#2', text='Name')
-        self.table_process.heading('#3', text='Count Thread')
-        self.table_process.column('#1', stretch=tk.YES)
-        self.table_process.column('#2', stretch=tk.YES)
-        self.table_process.column('#3', stretch=tk.YES)
-        self.table_process.pack(side='left', fill='y', expand=True)
+        self.table.heading('#1', text='ID')
+        self.table.heading('#2', text='Name')
+        self.table.heading('#3', text='Count Thread')
+        self.table.column('#1', stretch=tk.YES)
+        self.table.column('#2', stretch=tk.YES)
+        self.table.column('#3', stretch=tk.YES)
+        self.table.pack(side='left', fill='y', expand=True)
         self.table_process_iid = -1 # Pointer for the table
         
         # Table scrollbar
-        self.table_process_scrollbar = ttk.Scrollbar(
+        self.table_scrollbar = ttk.Scrollbar(
             master=self.frame_table,
             orient='vertical',
-            command=self.table_process.yview
+            command=self.table.yview
         )
-        self.table_process_scrollbar.pack(side='right', fill='y')
+        self.table_scrollbar.pack(side='right', fill='y')
         
         self.frame_buttons.grid(row=0, column=0, padx=5, pady=5)
         self.frame_table.grid(row=1, column=0, padx=5, pady=5)
 
     def delete_command(self):
         while self.table_process_iid >= 0:
-            self.table_process.delete(self.table_process_iid)
+            self.table.delete(self.table_process_iid)
             self.table_process_iid -= 1
 
-    def get_process_command(self):
+    def get_command(self):
         self.request('process', 'list', '')
         (error_code, error_message, server_data) = self.receive_reply()
         
@@ -176,7 +176,7 @@ class ProcessWindow(FunctionWindow):
             for line in server_data.splitlines():
                 self.table_process_iid += 1
                 t = tuple(line.split(','))
-                self.table_process.insert(
+                self.table.insert(
                     parent='',
                     index='end',
                     iid=self.table_process_iid,
@@ -185,56 +185,56 @@ class ProcessWindow(FunctionWindow):
         else:
             tk.messagebox.showwarning('Error', error_message)
 
-    def start_process_command(self):
-        w = tk.Toplevel(self.window)
-        w.title('Start process')
+    def get(self, window, entry):
+        process_name = entry.get()
+        self.request('process', 'start', process_name)
+        (error_code, error_message, server_data) = self.receive_reply()
+        window.destroy()
+        if error_code == 0:
+            tk.messagebox.showinfo('Start process', f'Start {process_name} successfully')
+        else:
+            tk.messagebox.showwarning('Error', error_message)
     
-        def get():
-            process_name = entry_start_process.get()
-            self.request('process', 'start', process_name)
-            (error_code, error_message, server_data) = self.receive_reply()
-            w.destroy()
-            if error_code == 0:
-                tk.messagebox.showinfo('Start process', f'Start {process_name} successfully')
-            else:
-                tk.messagebox.showwarning('Error', error_message)
+    def start_command(self):
+        w = tk.Toplevel(self.window)
+        w.title('Start')
         
-        entry_start_process = tk.Entry(
+        entry_start = tk.Entry(
             master=w,
-            text='Enter process name'
+            width=50
         )
-        entry_start_process.pack(side=tk.LEFT)
+        entry_start.pack(side=tk.LEFT, padx=5, pady=5, fill=tk.X, expand=True)
         btn_send = tk.Button(
             master=w,
             text='Start',
-            command = get
+            command=lambda: self.get(w, entry_start)
         )
-        btn_send.pack(side=tk.LEFT)
+        btn_send.pack(side=tk.LEFT, padx=5, pady=5, fill=tk.X, expand=True)
         w.mainloop()
         
+    def kill(self, window, entry):
+        process_id = entry.get()
+        self.request('process', 'kill', process_id)
+        (error_code, error_message, server_data) = self.receive_reply()
+        window.destroy()
+        if error_code == 0:
+            tk.messagebox.showinfo('Kill process', f'Kill process ID {process_id} successfully')
+        else:
+            tk.messagebox.showwarning('Error', error_message)
 
-    def kill_process_command(self):
+    def kill_command(self):
         w = tk.Toplevel(self.window)
-        w.title('Kill process')
+        w.title('Kill')
 
-        def kill():
-            process_id = entry_kill_process.get()
-            self.request('process', 'kill', process_id)
-            (error_code, error_message, server_data) = self.receive_reply()
-            w.destroy()
-            if error_code == 0:
-                tk.messagebox.showinfo('Kill process', f'Kill process ID {process_id} successfully')
-            else:
-                tk.messagebox.showwarning('Error', error_message)
-            
-        entry_kill_process = tk.Entry(
-            master=w
+        entry_kill = tk.Entry(
+            master=w,
+            width=50
         )
-        entry_kill_process.pack(side=tk.LEFT, padx=5, pady=5, fill=tk.X, expand=True)
+        entry_kill.pack(side=tk.LEFT, padx=5, pady=5, fill=tk.X, expand=True)
         btn_kill = tk.Button(
             master=w,
             text='Kill',
-            command=kill
+            command=lambda: self.kill(w, entry_kill)
         )
         btn_kill.pack(side=tk.LEFT, padx=5, pady=5, fill=tk.X, expand=True)
         w.mainloop()
