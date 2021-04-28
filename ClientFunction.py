@@ -54,6 +54,7 @@ class ScreenshotWindow(FunctionWindow):
 
         # Canvas for showing screenshot
         self.canvas = tk.Canvas(master=self.window)
+        self.canvas.config(width=480, height=360)
         
         self.btn_frame.pack()
         
@@ -65,10 +66,11 @@ class ScreenshotWindow(FunctionWindow):
         self.btn_show_screenshot.configure(state='disabled')
         self.btn_save_screenshot.configure(state='disabled')
         self.btn_delete_screenshot.configure(state='disabled')
-        self.canvas.pack()
+        self.canvas.pack(expand=tk.YES, fill=tk.BOTH)
 
     def take_screenshot_command(self):
-        self.img = pyautogui.screenshot()
+        self.img_origin = pyautogui.screenshot()
+        self.img = self.img_origin.resize((480, 360), Image.ANTIALIAS)
         self.btn_show_screenshot.configure(state='active')
         self.btn_save_screenshot.configure(state='active')
         self.btn_delete_screenshot.configure(state='active')
@@ -82,7 +84,7 @@ class ScreenshotWindow(FunctionWindow):
             defaultextension='.jpg',
             filetypes=[('PNG files', '*.png'), ('JPG files', '*.jpg'), ('All files', '*.*')]
         )
-        self.img.save(path)
+        self.img_origin.save(path)
 
     def delete_screenshot_command(self):
         self.canvas.delete('all')
