@@ -57,7 +57,7 @@ class ClientApp:
         self.btn_app = tk.Button(
             master=self.frame2,
             text='App',
-            # command=btn_app
+            command=self.app_running_command
         )
 
         self.btn_process = tk.Button(
@@ -119,6 +119,10 @@ class ClientApp:
         pr = ClientFunction.ProcessWindow(self.root)
         pr.run()
         # pass
+
+    def app_running_command(self):
+        ap = ClientFunction.AppWindow(self.root)
+        ap.run()
 
     def keylogging_command(self):
         kl = ClientFunction.KeyloggingWindow(self.root)

@@ -185,7 +185,7 @@ class ProcessWindow(FunctionWindow):
         else:
             tk.messagebox.showwarning('Error', error_message)
 
-    def get(self, window, entry):
+    def start(self, window, entry):
         process_name = entry.get()
         self.request('process', 'start', process_name)
         (error_code, error_message, server_data) = self.receive_reply()
@@ -207,7 +207,7 @@ class ProcessWindow(FunctionWindow):
         btn_send = tk.Button(
             master=w,
             text='Start',
-            command=lambda: self.get(w, entry_start)
+            command=lambda: self.start(w, entry_start)
         )
         btn_send.pack(side=tk.LEFT, padx=5, pady=5, fill=tk.X, expand=True)
         w.mainloop()
@@ -238,6 +238,28 @@ class ProcessWindow(FunctionWindow):
         )
         btn_kill.pack(side=tk.LEFT, padx=5, pady=5, fill=tk.X, expand=True)
         w.mainloop()
+
+class AppWindow(ProcessWindow):
+    def kill(self, window, entry):
+        process_id = entry.get()
+        self.request('app', 'kill', process_id)
+        (error_code, error_message, server_data) = self.receive_reply()
+        window.destroy()
+        if error_code == 0:
+            tk.messagebox.showinfo('Kill app', f'Kill app ID {process_id} successfully')
+        else:
+            tk.messagebox.showwarning('Error', error_message)
+
+    def start(self, window, entry):
+        process_name = entry.get()
+        self.request('app', 'start', process_name)
+        (error_code, error_message, server_data) = self.receive_reply()
+        window.destroy()
+        if error_code == 0:
+            tk.messagebox.showinfo('Start app', f'Start {process_name} successfully')
+        else:
+            tk.messagebox.showwarning('Error', error_message)
+
 
 class KeyloggingWindow(FunctionWindow):
     def __init__(self, top_level_window):
