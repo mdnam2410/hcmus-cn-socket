@@ -239,7 +239,7 @@ class ProcessWindow(FunctionWindow):
         btn_kill.pack(side=tk.LEFT, padx=5, pady=5, fill=tk.X, expand=True)
         w.mainloop()
 
-class KeyloggerWindow(FunctionWindow):
+class KeyloggingWindow(FunctionWindow):
     def __init__(self, top_level_window):
         super().__init__(top_level_window)
 
@@ -253,7 +253,7 @@ class KeyloggerWindow(FunctionWindow):
             text='Hook',
             command=self.hook_command
         )
-        self.btn_hook.pack()
+        self.btn_hook.pack(side=tk.LEFT, padx=5, pady=5)
 
         self.btn_unhook = tk.Button(
             master=self.frame_button,
@@ -261,7 +261,7 @@ class KeyloggerWindow(FunctionWindow):
             state='disabled',
             command=self.unhook_command
         )
-        self.btn_unhook.pack()
+        self.btn_unhook.pack(side=tk.LEFT, padx=5, pady=5)
 
         self.btn_print = tk.Button(
             master=self.frame_button,
@@ -269,7 +269,7 @@ class KeyloggerWindow(FunctionWindow):
             state='disabled',
             command=self.print_command
         )
-        self.btn_print.pack()
+        self.btn_print.pack(side=tk.LEFT, padx=5, pady=5)
 
         self.btn_delete = tk.Button(
             master=self.frame_button,
@@ -277,7 +277,7 @@ class KeyloggerWindow(FunctionWindow):
             state='disabled',
             command=self.delete_command
         )
-        self.btn_delete.pack()
+        self.btn_delete.pack(side=tk.LEFT, padx=5, pady=5)
 
         self.text = tk.Text(
             master=self.window,

