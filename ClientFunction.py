@@ -80,11 +80,14 @@ class ScreenshotWindow(FunctionWindow):
         self.canvas.create_image(0, 0, anchor=tk.NW, image=self.image_tk)
 
     def save_screenshot_command(self):
-        path = filedialog.asksaveasfilename(
-            defaultextension='.jpg',
-            filetypes=[('PNG files', '*.png'), ('JPG files', '*.jpg'), ('All files', '*.*')]
-        )
-        self.img_origin.save(path)
+        try:
+            path = filedialog.asksaveasfilename(
+                defaultextension='.jpg',
+                filetypes=[('PNG files', '*.png'), ('JPG files', '*.jpg'), ('All files', '*.*')]
+            )
+            self.img_origin.save(path)
+        except:
+            pass
 
     def delete_screenshot_command(self):
         self.canvas.delete('all')
@@ -523,13 +526,16 @@ class RegistryWindow(FunctionWindow):
             self.frame_wrapper.pack()
 
     def command_browse(self):
-        path = filedialog.askopenfilename(
-            title='Select registry file',
-            filetypes=(('reg files', '*.reg'), ('All files', '*.*'))
-        )
-        content = open(path).read()
-        self.entry_browse_registry_file.insert(0, path)
-        self.text_registry_file_content.insert('1.0', content)
+        try:
+            path = filedialog.askopenfilename(
+                title='Select registry file',
+                filetypes=(('reg files', '*.reg'), ('All files', '*.*'))
+            )
+            content = open(path).read()
+            self.entry_browse_registry_file.insert(0, path)
+            self.text_registry_file_content.insert('1.0', content)
+        except:
+            pass
 
     def send_registry_file_command(self):
         content = self.text_registry_file_content.get('1.0', tk.END)
