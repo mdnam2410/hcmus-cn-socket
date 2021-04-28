@@ -193,7 +193,7 @@ class ProcessWindow(FunctionWindow):
     def start(self, window, entry):
         process_name = entry.get()
         self.request('process', 'start', process_name)
-        (error_code, error_message, server_data) = self.receive_reply()
+        (error_code, error_message, _) = self.receive_reply()
         window.destroy()
         if error_code == 0:
             tk.messagebox.showinfo('Start process', f'Start {process_name} successfully')
@@ -220,7 +220,7 @@ class ProcessWindow(FunctionWindow):
     def kill(self, window, entry):
         process_id = entry.get()
         self.request('process', 'kill', process_id)
-        (error_code, error_message, server_data) = self.receive_reply()
+        (error_code, error_message, _) = self.receive_reply()
         window.destroy()
         if error_code == 0:
             tk.messagebox.showinfo('Kill process', f'Kill process ID {process_id} successfully')
@@ -248,7 +248,7 @@ class AppWindow(ProcessWindow):
     def kill(self, window, entry):
         process_id = entry.get()
         self.request('app', 'kill', process_id)
-        (error_code, error_message, server_data) = self.receive_reply()
+        (error_code, error_message, _) = self.receive_reply()
         window.destroy()
         if error_code == 0:
             tk.messagebox.showinfo('Kill app', f'Kill app ID {process_id} successfully')
@@ -258,7 +258,7 @@ class AppWindow(ProcessWindow):
     def start(self, window, entry):
         process_name = entry.get()
         self.request('app', 'start', process_name)
-        (error_code, error_message, server_data) = self.receive_reply()
+        (error_code, error_message, _) = self.receive_reply()
         window.destroy()
         if error_code == 0:
             tk.messagebox.showinfo('Start app', f'Start {process_name} successfully')
@@ -320,7 +320,7 @@ class KeyloggingWindow(FunctionWindow):
 
     def hook_command(self):
         self.request('keylogging', 'hook', '')
-        (error_code, error_message, server_data) = self.receive_reply()
+        (error_code, error_message, _) = self.receive_reply()
         
         if error_code == 0:
             self.btn_hook.configure(state='disabled')
@@ -540,7 +540,7 @@ class RegistryWindow(FunctionWindow):
     def send_registry_file_command(self):
         content = self.text_registry_file_content.get('1.0', tk.END)
         self.request('registry', 'send', content)
-        (error_code, error_message, server_data) = self.receive_reply()
+        (error_code, error_message, _) = self.receive_reply()
         if error_code == 0:
             tk.messagebox.showinfo('Success', 'Success')
         else:
