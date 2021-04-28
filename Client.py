@@ -86,7 +86,8 @@ class ClientApp:
 
         self.btn_shutdown = tk.Button(
             master=self.frame2,
-            text='Shut down'
+            text='Shut down',
+            command=self.shutdown_command
         )
 
         self.btn_screenshot.grid(row=0, column=0)
@@ -131,6 +132,14 @@ class ClientApp:
     def registry_command(self):
         r = ClientFunction.RegistryWindow(self.root)
         r.run()
+
+    def shutdown_command(self):
+        self.request('shutdown', '', '')
+        (error_code, error_message, _) = self.receive_reply()
+        if error_code == 0:
+            tk.messagebox.showinfo('Shutdown', 'Shut server down successfully')
+        else:
+            tk.messagebox.showerror('Error', error_message)
 
     def show_error_message(self, e):
         self.error_message_box = tk.Tk()
