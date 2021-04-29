@@ -23,9 +23,7 @@ def get_running_process() -> str:
     L = ''
     for line in output.readlines():
         line = line[0:len(line) - 1]
-        if line == '':
-            continue
-        else:
+        if line != '':
             L += line[d:p].rstrip() + ',' + line[p:t].rstrip() + ',' + line[t:len(line)].rstrip() + '\n'
 
     return L
