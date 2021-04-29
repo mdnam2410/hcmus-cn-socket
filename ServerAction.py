@@ -22,6 +22,11 @@ def action_process(option, data):
 
     if option == 'list':
         server_data = ProcessRunning.get_running_process()
+    elif option == 'start':
+        error_code = 0 if ProcessRunning.start(data) else 203
+    else:
+        r = ProcessRunning.kill(data)
+        error_code = 0 if r == 0 else 200 if r == 1 else 201 if r == 2 else 202
 
     return (error_code, server_data)
 
@@ -29,8 +34,13 @@ def action_app(option, data):
     error_code = 0
     server_data = ''
 
-    """Code here"""
-
+    if option == 'list':
+        server_data = ProcessRunning.get_running_applications()
+    elif option == 'start':
+        error_code = 0 if ProcessRunning.start(data) else 203
+    else:
+        r = ProcessRunning.kill(data)
+        error_code = 0 if r == 0 else 200 if r == 1 else 201 if r == 2 else 202
     return (error_code, server_data)
 
 def action_keylogging(option, data):

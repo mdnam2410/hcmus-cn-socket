@@ -58,3 +58,32 @@ def get_running_applications():
             if pid in s:
                 L += line[d:p].rstrip() + ',' + pid + ',' + line[t:].rstrip() + '\n'
     return L
+
+def start(name):
+    name = name[0:len(name) - 1] # Remove new line
+    r = subprocess.run(
+        ['powershell', '-Command', f'Start-Process -FilePath "{name}"'],
+        capture_output=True
+    )
+    print(r.returncode)
+    return r.returncode == 0
+
+def kill(pid):
+    r = subprocess.run(
+        ['powershell', '-Command', f'Stop-Process -ID {pid} -Force'],
+        capture_output=True
+    )
+    
+    if r.returncode == 0:
+        return 0
+    else:
+        s = r.stderr.decode('ascii')
+        s, _ = tuple(s.split('\n', 1))
+        _, s = tuple(s.split(':', 1))
+        s = s.strip()
+        if s.startswith('Cannot find'):
+            return 1
+        elif s.endswith('Access is denied'):
+            return 2
+        else:
+            return 3

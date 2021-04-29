@@ -20,5 +20,7 @@ error_message_dictionary = {
     0: 'OK',
     3: 'Unrecognized command',
     200: 'Process not running',
-    201: 'Cannot kill process'
+    201: 'Kill request is denied',
+    202: 'Cannot kill process',
+    203: 'Process not found'
 }
