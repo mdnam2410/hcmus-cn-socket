@@ -39,10 +39,10 @@ def action_app(option, data):
     if option == 'list':
         server_data = ProcessRunning.get_running_applications()
     elif option == 'start':
-        error_code = 0 if ProcessRunning.start(data) else 203
+        error_code = 0 if ProcessRunning.start(data) else 303
     else:
         r = ProcessRunning.kill(data)
-        error_code = 0 if r == 0 else 200 if r == 1 else 201 if r == 2 else 202
+        error_code = 0 if r == 0 else 300 if r == 1 else 301 if r == 2 else 302
     return (error_code, server_data)
 
 # Global variable
