@@ -1,14 +1,11 @@
 import ClientFunction
 import Util
 
-import pyautogui
 import socket
 import tkinter as tk
 import tkinter.messagebox
 import traceback
 
-from PIL import ImageTk, Image
-from tkinter import filedialog
 
 class NoConnectionError(Exception):
     pass
@@ -131,7 +128,6 @@ class ClientApp:
     def process_running_command(self):
         pr = ClientFunction.ProcessWindow(self.root)
         pr.run()
-        # pass
 
     def app_running_command(self):
         ap = ClientFunction.AppWindow(self.root)

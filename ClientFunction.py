@@ -25,49 +25,54 @@ class ScreenshotWindow(FunctionWindow):
         self.window.grab_set()
         self.window.title('Sreenshot')
 
-        self.btn_frame = tk.Frame(
+        # Container frame for buttons
+        self.frame_buttons = tk.Frame(
             master=self.window
         )
 
         # Buttons
         self.btn_take_screenshot = tk.Button(
-            master=self.btn_frame,
+            master=self.frame_buttons,
             text='Take screenshot',
             command=self.take_screenshot_command
         )
 
         self.btn_show_screenshot = tk.Button(
-            master=self.btn_frame,
+            master=self.frame_buttons,
             text='Show screenshot',
             command=self.show_screenshot_command
         )
 
         self.btn_save_screenshot = tk.Button(
-            master=self.btn_frame,
+            master=self.frame_buttons,
             text='Save screenshot',
             command=self.save_screenshot_command
         )
 
         self.btn_delete_screenshot = tk.Button(
-            master=self.btn_frame,
+            master=self.frame_buttons,
             text='Delete',
             command=self.delete_screenshot_command
         )
+        
 
         # Canvas for showing screenshot
         self.canvas = tk.Canvas(master=self.window)
-        self.canvas.config(width=480, height=360)
         
-        self.btn_frame.pack()
-        
+        # Pack buttons
         self.btn_take_screenshot.pack(side='left')
         self.btn_show_screenshot.pack(side='left')
         self.btn_save_screenshot.pack(side='left')
         self.btn_delete_screenshot.pack()
 
+        # These buttons are disabled initially
         self.btn_show_screenshot.configure(state='disabled')
         self.btn_save_screenshot.configure(state='disabled')
         self.btn_delete_screenshot.configure(state='disabled')
+
+        # Packing frame and canvas
+        self.frame_buttons.pack()
+        self.canvas.config(width=480, height=360)
         self.canvas.pack(expand=tk.YES, fill=tk.BOTH)
 
     def take_screenshot_command(self):
@@ -75,9 +80,16 @@ class ScreenshotWindow(FunctionWindow):
         error_code, error_message, data = self.receive_reply()
 
         if error_code == 0:
+            # Retrieve raw image from base64-encoded data
             raw = io.BytesIO(base64.b64decode(data.encode('utf-8')))
-            self.img_origin = Image.open(raw)
-            self.img = self.img_origin.resize((480, 360), Image.ANTIALIAS)
+
+            # Create the image
+            self.original_image = Image.open(raw)
+
+            # Resize for displaying on canvas
+            self.resized_image = self.original_image.resize((480, 360), Image.ANTIALIAS)
+
+            # Enable these button since the image is available now
             self.btn_show_screenshot.configure(state='active')
             self.btn_save_screenshot.configure(state='active')
             self.btn_delete_screenshot.configure(state='active')
@@ -85,7 +97,7 @@ class ScreenshotWindow(FunctionWindow):
             tk.messagebox.showerror('Error', error_message)
 
     def show_screenshot_command(self):
-        self.image_tk = ImageTk.PhotoImage(self.img)
+        self.image_tk = ImageTk.PhotoImage(self.resized_image)
         self.canvas.create_image(0, 0, anchor=tk.NW, image=self.image_tk)
 
     def save_screenshot_command(self):
@@ -94,8 +106,9 @@ class ScreenshotWindow(FunctionWindow):
                 defaultextension='.jpg',
                 filetypes=[('PNG files', '*.png'), ('JPG files', '*.jpg'), ('All files', '*.*')]
             )
-            self.img_origin.save(path)
+            self.original_image.save(path)
         except:
+            # Ignore exceptions raised by filedialog
             pass
 
     def delete_screenshot_command(self):
@@ -105,44 +118,44 @@ class ScreenshotWindow(FunctionWindow):
         self.btn_delete_screenshot.configure(state='disabled')
 
 class ProcessWindow(FunctionWindow):
+    """ This class is designed to reuse for the AppWindow too"""
+
     def __init__(self, top_level_window):
         super().__init__(top_level_window)
 
+        self.window.title('Process')
         self.window.rowconfigure(0, weight=1, minsize=10)
         self.window.rowconfigure(1, weight=1, minsize=50)
 
-        # Button frame
+        # Frame for buttons
         self.frame_buttons = tk.Frame(
             master=self.window
         )
 
+        # Buttons
         self.btn_get = tk.Button(
             master=self.frame_buttons,
             text='Get',
             command=self.get_command
         )
-        self.btn_get.pack(side=tk.LEFT, fill=tk.X, padx=5, pady=5, expand=True)
 
         self.btn_delete = tk.Button(
             master=self.frame_buttons,
             text='Delete',
             command=self.delete_command
         )
-        self.btn_delete.pack(side=tk.LEFT, fill=tk.X, padx=5, pady=5, expand=True)
 
         self.btn_start = tk.Button(
             master=self.frame_buttons,
             text='Start',
             command=self.start_command
         )
-        self.btn_start.pack(side=tk.LEFT, fill=tk.X, padx=5, pady=5, expand=True)
 
         self.btn_kill = tk.Button(
             master=self.frame_buttons,
             text='Kill',
             command=self.kill_command
         )
-        self.btn_kill.pack(side=tk.LEFT, fill=tk.X, padx=5, pady=5, expand=True)
 
         # Container frame for table
         self.frame_table = tk.Frame(
@@ -155,15 +168,14 @@ class ProcessWindow(FunctionWindow):
             columns=('ID', 'Name', 'Count Thread'),
         )
         self.table['show'] = 'headings'
-
         self.table.heading('#1', text='ID')
         self.table.heading('#2', text='Name')
         self.table.heading('#3', text='Count Thread')
         self.table.column('#1', stretch=tk.YES)
         self.table.column('#2', stretch=tk.YES)
         self.table.column('#3', stretch=tk.YES)
-        self.table.pack(side='left', fill='y', expand=True)
-        self.table_process_iid = -1 # Pointer for the table
+        # Pointer points to the bottom element of the table
+        self.table_process_iid = -1
         
         # Table scrollbar
         self.table_scrollbar = ttk.Scrollbar(
@@ -171,12 +183,24 @@ class ProcessWindow(FunctionWindow):
             orient='vertical',
             command=self.table.yview
         )
-        self.table_scrollbar.pack(side='right', fill='y')
         
+        # Packing buttons
+        self.btn_get.pack(side=tk.LEFT, fill=tk.X, padx=5, pady=5, expand=True)
+        self.btn_delete.pack(side=tk.LEFT, fill=tk.X, padx=5, pady=5, expand=True)
+        self.btn_start.pack(side=tk.LEFT, fill=tk.X, padx=5, pady=5, expand=True)
+        self.btn_kill.pack(side=tk.LEFT, fill=tk.X, padx=5, pady=5, expand=True)
+
+        # Packing table
+        self.table.pack(side='left', fill='y', expand=True)
+        self.table_scrollbar.pack(side='right', fill='y')
+
+        # Placing frames
         self.frame_buttons.grid(row=0, column=0, padx=5, pady=5)
         self.frame_table.grid(row=1, column=0, padx=5, pady=5)
 
     def delete_command(self):
+        """ Clear all content of the table"""
+
         while self.table_process_iid >= 0:
             self.table.delete(self.table_process_iid)
             self.table_process_iid -= 1
@@ -185,8 +209,10 @@ class ProcessWindow(FunctionWindow):
         self.request('process', 'list', '')
         (error_code, error_message, server_data) = self.receive_reply()
         
+        # Clear the table
         self.delete_command()
         if error_code == 0:
+            # Display each process in each row of the table
             for line in server_data.splitlines():
                 self.table_process_iid += 1
                 t = tuple(line.split(','))
@@ -200,6 +226,8 @@ class ProcessWindow(FunctionWindow):
             tk.messagebox.showwarning('Error', error_message)
 
     def start(self, window, entry):
+        """ Auxiliary function, make it a method for reuse"""
+
         process_name = entry.get()
         self.request('process', 'start', process_name)
         (error_code, error_message, _) = self.receive_reply()
@@ -210,23 +238,32 @@ class ProcessWindow(FunctionWindow):
             tk.messagebox.showwarning('Error', error_message)
     
     def start_command(self):
+        # Create a new window to get input
         w = tk.Toplevel(self.window)
         w.title('Start')
         
+        # The window has one entry and one button
         entry_start = tk.Entry(
             master=w,
             width=50
         )
-        entry_start.pack(side=tk.LEFT, padx=5, pady=5, fill=tk.X, expand=True)
+
         btn_send = tk.Button(
             master=w,
             text='Start',
             command=lambda: self.start(w, entry_start)
         )
+
+        # Packing
+        entry_start.pack(side=tk.LEFT, padx=5, pady=5, fill=tk.X, expand=True)
         btn_send.pack(side=tk.LEFT, padx=5, pady=5, fill=tk.X, expand=True)
+
+        # Run
         w.mainloop()
         
     def kill(self, window, entry):
+        """ Auxiliary function, make it a method for reuse"""
+        
         process_id = entry.get()
         self.request('process', 'kill', process_id)
         (error_code, error_message, _) = self.receive_reply()
@@ -237,23 +274,36 @@ class ProcessWindow(FunctionWindow):
             tk.messagebox.showwarning('Error', error_message)
 
     def kill_command(self):
+        # Create a new window to get input
         w = tk.Toplevel(self.window)
         w.title('Kill')
 
+        # The window has one entry and one button
         entry_kill = tk.Entry(
             master=w,
             width=50
         )
-        entry_kill.pack(side=tk.LEFT, padx=5, pady=5, fill=tk.X, expand=True)
+
         btn_kill = tk.Button(
             master=w,
             text='Kill',
             command=lambda: self.kill(w, entry_kill)
         )
+
+        # Packing
+        entry_kill.pack(side=tk.LEFT, padx=5, pady=5, fill=tk.X, expand=True)
         btn_kill.pack(side=tk.LEFT, padx=5, pady=5, fill=tk.X, expand=True)
+
+        # Run
         w.mainloop()
 
 class AppWindow(ProcessWindow):
+    """ Reused from ProcessWindow"""
+
+    def __init__(self):
+        super.__init__()
+        self.window.title('App')
+
     def kill(self, window, entry):
         process_id = entry.get()
         self.request('app', 'kill', process_id)
@@ -279,17 +329,22 @@ class KeyloggingWindow(FunctionWindow):
     def __init__(self, top_level_window):
         super().__init__(top_level_window)
 
+        self.window.title('Keylogging')
+
+        # A stream holding keystrokes hooked
+        self.keystroke_stream = ''
+
         # Frame for buttons
         self.frame_button = tk.Frame(
             master=self.window,
         )
 
+        # Buttons
         self.btn_hook = tk.Button(
             master=self.frame_button,
             text='Hook',
             command=self.hook_command
         )
-        self.btn_hook.pack(side=tk.LEFT, padx=5, pady=5)
 
         self.btn_unhook = tk.Button(
             master=self.frame_button,
@@ -297,7 +352,6 @@ class KeyloggingWindow(FunctionWindow):
             state='disabled',
             command=self.unhook_command
         )
-        self.btn_unhook.pack(side=tk.LEFT, padx=5, pady=5)
 
         self.btn_print = tk.Button(
             master=self.frame_button,
@@ -305,33 +359,37 @@ class KeyloggingWindow(FunctionWindow):
             state='disabled',
             command=self.print_command
         )
-        self.btn_print.pack(side=tk.LEFT, padx=5, pady=5)
 
         self.btn_delete = tk.Button(
             master=self.frame_button,
             text='Delete',
             command=self.delete_command
         )
-        self.btn_delete.pack(side=tk.LEFT, padx=5, pady=5)
 
+        # Text for displaying results
         self.text = tk.Text(
             master=self.window,
             padx=5,
             pady=5,
-            state='disabled' # No text entry
+            state='disabled'
         )
 
+        # Packing buttons
+        self.btn_hook.pack(side=tk.LEFT, padx=5, pady=5)
+        self.btn_unhook.pack(side=tk.LEFT, padx=5, pady=5)
+        self.btn_print.pack(side=tk.LEFT, padx=5, pady=5)
+        self.btn_delete.pack(side=tk.LEFT, padx=5, pady=5)
+
+        # Packing frame and text
         self.frame_button.pack()
         self.text.pack()
-
-        # A stream holding keystrokes hooked
-        self.keystroke_stream = ''
 
     def hook_command(self):
         self.request('keylogging', 'hook', '')
         (error_code, error_message, _) = self.receive_reply()
         
         if error_code == 0:
+            # Prevent duplicate hook
             self.btn_hook.configure(state='disabled')
             self.btn_unhook.configure(state='active')
         else:
@@ -342,28 +400,36 @@ class KeyloggingWindow(FunctionWindow):
         (error_code, error_message, server_data) = self.receive_reply()
 
         if error_code == 0:
+            # Add the incoming hooked keys to the stream
             self.keystroke_stream += server_data
+
+            # Client can continue hooking or print the result
             self.btn_hook.configure(state='active')
-            self.btn_unhook.configure(state='disabled')
             self.btn_print.configure(state='active')
+
+            # Prevent duplicate unhook
+            self.btn_unhook.configure(state='disabled')
         else:
             tk.messagebox.showwarning('Error', error_message)
 
     def print_command(self):
+        # Insert the hooked keys
         self.text.configure(state='normal')
         self.text.insert(1.0, self.keystroke_stream)
-        self.keystroke_stream = ''
-        self.btn_print.configure(state='disabled')
         self.text.configure(state='disabled')
 
+        # Flush the stream
+        self.keystroke_stream = ''
+
+        # No more data to print
+        self.btn_print.configure(state='disabled')
+
     def delete_command(self):
+        # Clean the text entry
         self.text.configure(state='normal')
         self.text.delete(1.0, tk.END)
         self.text.configure(state='disabled')
 
-        # self.btn_unhook.configure(state='disabled')
-        # self.btn_print.configure(state='disabled')
-        # self.btn_delete.configure(state='disabled')
 
 class RegistryWindow(FunctionWindow):
     def __init__(self, top_level_window):
@@ -377,15 +443,16 @@ class RegistryWindow(FunctionWindow):
         self.window.rowconfigure(2, weight=1, minsize=10)
         self.window.columnconfigure(0, weight=1, minsize=50)
 
-        self.initialize_frame1()
-        self.initialize_frame2()
-        self.initialize_frame3()
+        # Divide the window into three frames
+        self.create_frame1()
+        self.create_frame2()
+        self.create_frame3()
 
         self.frame1.grid(row=0, column=0, padx=5, pady=5, sticky='nsew')
         self.frame2.grid(row=1, column=0, padx=5, pady=5, sticky='nsew')
         self.frame3.grid(row=2, column=0, padx=5, pady=5, sticky='nsew')
 
-    def initialize_frame1(self):
+    def create_frame1(self):
         # Frame containing buttons and entries for sending registry files
         self.frame1 = tk.Frame(
             master=self.window,
@@ -398,34 +465,40 @@ class RegistryWindow(FunctionWindow):
                 self.frame1.rowconfigure(i, weight=1, minsize=20)
                 self.frame1.columnconfigure(j, weight=1)
 
+        # Entry for displaying browsed registry file
         self.entry_browse_registry_file = tk.Entry(
             master=self.frame1
         )
-        self.entry_browse_registry_file.grid(row=0, column=0, padx=5, pady=5, sticky='nsew')
 
+        # Browse button
         self.btn_browse = tk.Button(
             master=self.frame1,
             text='Browse',
-            command=self.command_browse,
+            command=self.browse_command,
         )
-        self.btn_browse.grid(row=0, column=1, padx=5, pady=5, sticky='nsew')
 
+        # Text widget for showing the registry file content
         self.text_registry_file_content = tk.Text(
             master=self.frame1,
             height=5,
             width=50
         )
-        self.text_registry_file_content.grid(row=1, column=0, padx=5, pady=5, sticky='nsew')
 
+        # Send registry file button
         self.btn_send_registry_file = tk.Button(
             master = self.frame1,
             text='Send',
             height=10,
             command=self.send_registry_file_command
         )
+
+        # Placing the widgets
+        self.entry_browse_registry_file.grid(row=0, column=0, padx=5, pady=5, sticky='nsew')
+        self.btn_browse.grid(row=0, column=1, padx=5, pady=5, sticky='nsew')
+        self.text_registry_file_content.grid(row=1, column=0, padx=5, pady=5, sticky='nsew')
         self.btn_send_registry_file.grid(row=1, column=1, padx=5, pady=5, sticky='nsew')
 
-    def initialize_frame2(self):
+    def create_frame2(self):
         # Frame containing buttons, entries, and dropboxes for modifying registry keys directly
         self.frame2 = tk.Frame(
             master=self.window,
@@ -433,47 +506,46 @@ class RegistryWindow(FunctionWindow):
             borderwidth=1
         )
 
-        self.OPTION_FUNCTIONS = [
+        # Menu for choosing types of modification
+        self.MODIFICATION_TYPE = [
             'Get value',
             'Set value',
             'Delete value',
             'Create key',
             'Delete key'
         ]
-
-        self.variable_commandtype = tk.StringVar(self.window)
-        self.variable_commandtype.set('Select an option')
+        self.modification_type_var = tk.StringVar(self.window)
+        self.modification_type_var.set('Select an option')
 
         self.menu_function = ttk.Combobox(
             master=self.frame2,
-            textvariable=self.variable_commandtype,
-            # *self.OPTION_FUNCTIONS,
-            # command=self.frame2_alternate_widgets
+            textvariable=self.modification_type_var
         )
-        self.menu_function['values'] = self.OPTION_FUNCTIONS
+        self.menu_function['values'] = self.MODIFICATION_TYPE
         self.menu_function.bind('<<ComboboxSelected>>', self.frame2_alternate_widgets)
-        self.menu_function.pack(fill=tk.X, padx=5, pady=5)
 
-        self.entry1 = tk.Entry(
+        # Entry for registry path input
+        self.entry_registry_path = tk.Entry(
             master=self.frame2
         )
-        self.entry1.pack(fill=tk.X, padx=5, pady=5, expand=True)
         
-        self.frame_wrapper = tk.Frame(
+        # Container frame for registry key entry, new value entry, and value type combobox
+        self.frame_wrap = tk.Frame(
             master=self.frame2
         )
 
-        self.entry2 = tk.Entry(
-            master=self.frame_wrapper
+        # Entry for registry key input
+        self.entry_registry_key = tk.Entry(
+            master=self.frame_wrap
         )
-        self.entry2.pack(side=tk.LEFT, fill=tk.X, padx=5, pady=5, expand=True)
         
-        self.entry3 = tk.Entry(
-            master=self.frame_wrapper
+        # Entry for new value input
+        self.entry_new_value = tk.Entry(
+            master=self.frame_wrap
         )
-        self.entry3.pack(side=tk.LEFT, fill=tk.X, padx=5, pady=5, expand=True)
 
-        self.OPTION_KEYTYPES = [
+        # Combobox for value types
+        self.VALUE_TYPES = [
             'String',
             'Binary',
             'DWORD',
@@ -481,60 +553,71 @@ class RegistryWindow(FunctionWindow):
             'Multi-String',
             'Expandable String'
         ]
+        self.value_type_var = tk.StringVar(self.window)
+        self.value_type_var.set('Data type')
 
-        self.variable_keytype = tk.StringVar(self.window)
-        self.variable_keytype.set('Data type')
-
-        self.menu_keytype = ttk.Combobox(
-            master=self.frame_wrapper,
-            textvariable=self.variable_keytype,
+        self.menu_value_type = ttk.Combobox(
+            master=self.frame_wrap,
+            textvariable=self.value_type_var,
         )
-        self.menu_keytype['values'] = self.OPTION_KEYTYPES
-        self.menu_keytype.pack(side=tk.LEFT, fill=tk.X, padx=5, pady=5, expand=True)
+        self.menu_value_type['values'] = self.VALUE_TYPES
 
-        self.frame_wrapper.pack(fill=tk.X, expand=True)
-
+        # Text entry for displaying result
         self.text_result = tk.Text(
             master=self.frame2,
             height=8
         )
         self.text_result.configure(state='disabled')
+
+        # Packing all widgets
+        self.menu_function.pack(fill=tk.X, padx=5, pady=5)
+        self.entry_registry_path.pack(fill=tk.X, padx=5, pady=5, expand=True)
+        self.entry_registry_key.pack(side=tk.LEFT, fill=tk.X, padx=5, pady=5, expand=True)
+        self.entry_new_value.pack(side=tk.LEFT, fill=tk.X, padx=5, pady=5, expand=True)
+        self.menu_value_type.pack(side=tk.LEFT, fill=tk.X, padx=5, pady=5, expand=True)
+        self.frame_wrap.pack(fill=tk.X, expand=True)
         self.text_result.pack(fill=tk.X, expand=True)
 
-    def initialize_frame3(self):
+    def create_frame3(self):
+        # Container frame for the send and delete buttons
         self.frame3 = tk.Frame(
             master=self.window,
             relief=tk.GROOVE,
             borderwidth=1
         )
 
+        # Buttons
         self.btn_send = tk.Button(
             master=self.frame3,
             text='Send',
             width=10,
             command=self.send_command
         )
-        self.btn_send.pack(side=tk.LEFT, padx=5, pady=5)
 
         self.btn_delete = tk.Button(
             master=self.frame3,
             text='Delete',
             width=10
         )
+
+        # Packing
+        self.btn_send.pack(side=tk.LEFT, padx=5, pady=5)
         self.btn_delete.pack(side=tk.LEFT, padx=5, pady=5)
 
     def frame2_alternate_widgets(self, event):
-        if self.variable_commandtype.get() in {'Get value', 'Delete value'}:
-            self.entry3.pack_forget()
-            self.menu_keytype.pack_forget()
-        elif self.variable_commandtype.get() in {'Create key', 'Delete key'}:
-            self.frame_wrapper.pack_forget()    
-        else:
-            self.entry3.pack(side=tk.LEFT, fill=tk.X, padx=5, pady=5, expand=True)
-            self.menu_keytype.pack(side=tk.LEFT, fill=tk.X, padx=5, pady=5, expand=True)
-            self.frame_wrapper.pack()
+        """ Displaying widgets according to the modification types chosen by user """
 
-    def command_browse(self):
+        if self.modification_type_var.get() in {'Get value', 'Delete value'}:
+            self.entry_new_value.pack_forget()
+            self.menu_value_type.pack_forget()
+        elif self.modification_type_var.get() in {'Create key', 'Delete key'}:
+            self.frame_wrap.pack_forget()    
+        else:
+            self.entry_new_value.pack(side=tk.LEFT, fill=tk.X, padx=5, pady=5, expand=True)
+            self.menu_value_type.pack(side=tk.LEFT, fill=tk.X, padx=5, pady=5, expand=True)
+            self.frame_wrap.pack()
+
+    def browse_command(self):
         try:
             path = filedialog.askopenfilename(
                 title='Select registry file',
@@ -556,18 +639,18 @@ class RegistryWindow(FunctionWindow):
             tk.messagebox.showerror('Error', error_message)
     
     def send_command(self):
-        option = self.variable_commandtype.get()
+        option = self.modification_type_var.get()
         c, v = option.split(' ')
         option = c.lower()
         if v == 'key':
             option += '-' + v
         
-        path = self.entry1.get()
-        key = self.entry2.get()
-        value = self.entry3.get()
+        path = self.entry_registry_path.get()
+        key = self.entry_registry_key.get()
+        value = self.entry_new_value.get()
 
         # Map keys from combobox's options to registry types
-        key_type_map = {
+        value_type_map = {
             'String':            'REG_SZ',
             'Binary':            'REG_BINARY',
             'DWORD':             'REG_DWORD',
@@ -575,13 +658,13 @@ class RegistryWindow(FunctionWindow):
             'Multi-String':      'REG_MULTI_SZ',
             'Expandable String': 'REG_EXPAND_SZ'
         }
-        key_type = key_type_map[self.variable_keytype.get()]
+        value_type = value_type_map[self.value_type_var.get()]
 
         if v != 'key':
             path = path + '\\' + key
 
         if option == 'set':
-            client_data = path + ',' + value + ',' + key_type + '\n'
+            client_data = path + ',' + value + ',' + value_type + '\n'
         else:
             client_data = path
 
