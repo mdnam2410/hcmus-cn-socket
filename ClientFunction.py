@@ -1,6 +1,7 @@
 import Client
 
-import pyautogui
+import base64
+import io
 import tkinter as tk
 import tkinter.ttk as ttk
 
@@ -70,11 +71,18 @@ class ScreenshotWindow(FunctionWindow):
         self.canvas.pack(expand=tk.YES, fill=tk.BOTH)
 
     def take_screenshot_command(self):
-        self.img_origin = pyautogui.screenshot()
-        self.img = self.img_origin.resize((480, 360), Image.ANTIALIAS)
-        self.btn_show_screenshot.configure(state='active')
-        self.btn_save_screenshot.configure(state='active')
-        self.btn_delete_screenshot.configure(state='active')
+        self.request('screenshot', '', '')
+        error_code, error_message, data = self.receive_reply()
+
+        if error_code == 0:
+            raw = io.BytesIO(base64.b64decode(data.encode('utf-8')))
+            self.img_origin = Image.open(raw)
+            self.img = self.img_origin.resize((480, 360), Image.ANTIALIAS)
+            self.btn_show_screenshot.configure(state='active')
+            self.btn_save_screenshot.configure(state='active')
+            self.btn_delete_screenshot.configure(state='active')
+        else:
+            tk.messagebox.showerror('Error', error_message)
 
     def show_screenshot_command(self):
         self.image_tk = ImageTk.PhotoImage(self.img)
