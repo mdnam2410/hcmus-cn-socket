@@ -90,8 +90,12 @@ General error | `000` | `OK` | No error. All tasks done successfully.
 General error | `001` | `Server not running` | Cannot contact the server because it is not running.
 General error | `002` | `Server shut down` | The server shut down by any mean, e.g. task kill, computer shut down, keyboard interrupt (Ctrl + C)
 General error | ... | ... | ...
-Screenshot | `100` | `Cannot take screenshot` | For some fucking reason a screenshot cannot be taken
-Screenshoht | ... | ... | ...
+Screenshot | `100` | `Cannot take screenshot` | Cannot take screenshot
 Running Processes | `200` | `Process not running` | Client tries to kill a process that is not running
-Running Processes | `201` | `Cannot kill process` | Cannot kill a running process (OS doesn't allow, for example)
-Running Processes | ... | ... | ...
+Running Processes | `201` | `Kill request is denied` | Denied for many reasons, e.g. trying to kill a system process, etc.
+Running Processes | `202` | `Cannot kill process` | Cannot kill a running process (OS doesn't allow, for example)
+Running Processes | `203` | `Process not found` | Cannot find the process specified
+Running Applications | `300` | `Application not running` | Client tries to kill an application that is not running
+Running Applications | `301` | `Kill request is denied` | Denied for many reasons, e.g. trying to kill a system process, etc.
+Running Applications | `302` | `Cannot kill application` | Cannot kill a running application
+Running Applications | `303` | `Application not found` | Cannot find the application specified
