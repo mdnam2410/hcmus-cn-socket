@@ -46,7 +46,7 @@ All client messages will have the following structure:
 Where:
 * `command` field: A command corresponds to each function, e.g. `process` for the Running Processes function (full list shown later.)
 * `option` field: (may be empty) specifies what type of a command, e.g `process kill` to kill a running process.
-* `data` field: the data going along with the `command`. For example: `process kill CRLF 123`. This message tells the server to kill the process having ID 123. If the `data` field contains many units, each separated by a `CRLF`.
+* `data` field: the data going along with the `command`. For example: `process kill\n123`. This message tells the server to kill the process having ID 123. If the `data` field contains many units, each separated by a `\n`.
 
 ## Server
 All server messages will have the following structure:
