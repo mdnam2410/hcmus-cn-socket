@@ -10,8 +10,8 @@ import socket
 # socket.bind((SERVER_ADDRESS, SERVER_PORT))
 
 # Message received from socket
-client_message = b'''process list
-
+client_message = b'''app kill
+9395
 '''
 
 (command, option, client_data) = Util.extract_message(client_message, message_type='client')

