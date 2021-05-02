@@ -411,8 +411,8 @@ class RegistryWindow(FunctionWindow):
         self.btn_send_registry_file = tk.Button(
             master = self.frame1,
             text='Send',
-            height=10
-            # command
+            height=10,
+            command=self.send_registry_file_command
         )
         self.btn_send_registry_file.grid(row=1, column=1, padx=5, pady=5, sticky='nsew')
 
@@ -556,7 +556,17 @@ class RegistryWindow(FunctionWindow):
         path = self.entry1.get()
         key = self.entry2.get()
         value = self.entry3.get()
-        key_type = self.variable_keytype.get()
+
+        # Map keys from combobox's options to registry types
+        key_type_map = {
+            'String':            'REG_SZ',
+            'Binary':            'REG_BINARY',
+            'DWORD':             'REG_DWORD',
+            'QWORD':             'REG_QWORD',
+            'Multi-String':      'REG_MULTI_SZ',
+            'Expandable String': 'REG_EXPAND_SZ'
+        }
+        key_type = key_type_map[self.variable_keytype.get()]
 
         if v != 'key':
             path = path + '\\' + key
