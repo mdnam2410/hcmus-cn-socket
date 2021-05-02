@@ -1,6 +1,5 @@
 import Keylogger
 import ProcessRunning
-import test_reg
 
 import base64
 import io
