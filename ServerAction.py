@@ -63,15 +63,15 @@ def action_reg(option, data):
     Parameters
     ---------
     option : str
-        One of the five command: 'send', 'get', 'set', 'delete', 'create', 'delete-key'
+        One of the five command: 'send', 'get', 'set', 'delete', 'create-key', 'delete-key'
 
     data : str
         Depends on option:
             option = 'send':       the .reg file
-            option = 'get':        the path the key to get value
-            option = 'set':        a formatted string: <path to key>,<new value>
+            option = 'get':        the path of the key to get value
+            option = 'set':        a formatted string: <path to key>,<new value>,<value type>
             option = 'delete':     the path to the key to delete value
-            option = 'create':     the path to the new key to create
+            option = 'create-key': the path to the new key to create
             option = 'delete-key': the path to the key to delete
     
     Returns
@@ -85,7 +85,7 @@ def action_reg(option, data):
             option = 'get':        a formatted string: <key type>,<key value>
             option = 'set':        empty
             option = 'delete':     empty
-            option = 'create':     empty
+            option = 'create-key': empty
             option = 'delete-key': empty
     type of value in key: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rprn/25cce700-7fcf-4bb6-a2f3-0f6d08430a55
     """

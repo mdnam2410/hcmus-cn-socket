@@ -33,26 +33,25 @@ Features:
     * Delete keys
 
 ## Shutdown
-Feature: just fucking shut the server down
+Feature: Shut the server down
 
 # Client and server message structure
 
 ## Client
 All client messages will have the following structure:
 ```
-<command> [<option>] CRLF
+<command> [<option>]
 <data>
 ```
 Where:
 * `command` field: A command corresponds to each function, e.g. `process` for the Running Processes function (full list shown later.)
 * `option` field: (may be empty) specifies what type of a command, e.g `process kill` to kill a running process.
-* `CRLF`: Carriage return and line feed, equivalent to `\r\n` (most Internet protocols use these characters to specify new lines)
 * `data` field: the data going along with the `command`. For example: `process kill CRLF 123`. This message tells the server to kill the process having ID 123. If the `data` field contains many units, each separated by a `CRLF`.
 
 ## Server
 All server messages will have the following structure:
 ```
-<error code> <message> CRLF
+<error code> <message>
 <data>
 ```
 Where:
@@ -65,19 +64,19 @@ Function | Command | Option | Data | Description
 -------- | ------- | ------ | ---- | -----------
 Screenshot | `screenshot` | `<none>` | `<none>` | Require a screenshot (in JPG (PNG?) format)
 Running Processes | `process` | `list` | `<none>` | Require a list of processes
-Running Processes | `process` | `kill` | `<list of ID>` | Kill processes
-Running Processes | `process` | `start` | `<list of ID>` | Start processes
+Running Processes | `process` | `kill` | `<PID>` | Kill processes
+Running Processes | `process` | `start` | `<process name>` | Start processes
 Running Applications | `app` | `list` | `<none>` | Require a list of processes
-Running Applications | `app` | `kill` | `<list of ID>` | Kill applications
-Running Applications | `app` | `start` | `<list of ID>` | Start applications
+Running Applications | `app` | `kill` | `<PID>` | Kill applications
+Running Applications | `app` | `start` | `<application name>` | Start applications
 Keylogging | `keylogging` | `hook` | `<none>` | Start hooking
 Keylogging | `keylogging` | `unhook` | `<none>` | Stop hooking. The server automatically returns the hooked keystrokes
 Modifying Registries | `reg` | `send` | `<.reg file>` | Send the registry file to the server
 Modifying Registries | `reg` | `get` | `<path to registry>` | Get the registry value
-Modifying Registries | `reg` | `set` | `<path to registry> CRLF <new value>` | Set the registry value
+Modifying Registries | `reg` | `set` | `<path to registry>,<new value>,<value type>` | Set the registry value
 Modifying Registries | `reg` | `delete` | `<path to registry>` | Delete the registry
-Modifying Registries | `reg` | `create` | `<new registry key>` | Create new registry key
-Modifying Registries | `reg` | `delete-key` | `<path to registry>` | Create new registry key
+Modifying Registries | `reg` | `create-key` | `<new registry key>` | Create new registry key
+Modifying Registries | `reg` | `delete-key` | `<path to registry>` | Delete registry key
 Shutdown | `shutdown` | `<none>` | `<none>` | Shut the server down
 
 
@@ -89,7 +88,6 @@ Function | Error code | Message | Description
 General error | `000` | `OK` | No error. All tasks done successfully.
 General error | `001` | `Server not running` | Cannot contact the server because it is not running.
 General error | `002` | `Server shut down` | The server shut down by any mean, e.g. task kill, computer shut down, keyboard interrupt (Ctrl + C)
-General error | ... | ... | ...
 Screenshot | `100` | `Cannot take screenshot` | Cannot take screenshot
 Running Processes | `200` | `Process not running` | Client tries to kill a process that is not running
 Running Processes | `201` | `Kill request is denied` | Denied for many reasons, e.g. trying to kill a system process, etc.
