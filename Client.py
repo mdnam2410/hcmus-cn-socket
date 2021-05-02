@@ -10,17 +10,42 @@ import traceback
 from PIL import ImageTk, Image
 from tkinter import filedialog
 
+class NoConnectionError(Exception):
+    pass
+
 class ClientApp:
     def __init__(self):
-        """Initialize client app with main window and buttons"""
+        """Initialize neccessary variables"""
         
-        # Test later
-        # ----------
-        # self.server_address = ""
-        # self.server_port = 0
-        # self.socket = socket.socket()
-        # self.socket.connect((server_address, server_port))
+        self.server_address = ""
+        self.server_port = 12345
+        self.connected = False
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+    def __del__(self):
+        pass
+
+    def connect(self):
+        """ Establish a connection to the server"""
+
+        self.server_address = self.entry_server_address.get()
+        self.socket.connect((self.server_address, self.server_port))
+        self.connected = True
+        tk.messagebox.showinfo('Success', 'Connected to server successfully')
+
+    def request(self, command, option, data):
+        if not self.connected:
+            raise NoConnectionError('No connection')
+        else:
+            self.socket.send(Util.package_message(command, option, data))
+
+    def receive_reply(self):
+        if not self.connected:
+            raise NoConnectionError('No connection')
+        else:
+            return self.socket.recv(2 ** 16)
+
+    def run(self):
         # Create main window
         self.root = tk.Tk()
         self.root.report_callback_exception = self.report_callback_exception
@@ -42,7 +67,8 @@ class ClientApp:
 
         self.btn_connect = tk.Button(
             master=self.frame1,
-            text='Connect'
+            text='Connect',
+            command=self.connect
         )
         self.btn_connect.pack(side=tk.LEFT, padx=5, pady=5)
 
@@ -96,22 +122,8 @@ class ClientApp:
         self.btn_registry.grid(row=1, column=0)
         self.btn_keylog.grid(row=1, column=1)
         self.btn_shutdown.grid(row=1, column=2)
-
-    def __del__(self):
-        pass
-
-    def request(self, command, option, data):
-        # self.socket.send(Util.package_message(command, option, data))
-        #pass
-        print(Util.package_message(command, option, data))
-
-    def receive_reply(self):
-        # return Util.extract_message(self.socket.recv(2**32))
-        return (0, 'OK', 'Let\'s go\n')
-
-    def run(self):
         self.root.mainloop()
-
+    
     def screenshot_command(self):
         sw = ClientFunction.ScreenshotWindow(self.root)
         sw.run()
@@ -141,14 +153,9 @@ class ClientApp:
         else:
             tk.messagebox.showerror('Error', error_message)
 
-    def show_error_message(self, e):
-        self.error_message_box = tk.Tk()
-        error_message = tk.Label(master=self.error_message_box, text=e)
-        error_message.pack()
-        self.error_message_box.mainloop()
-
     def report_callback_exception(self, *args):
         error = traceback.format_exception(*args)
+        error = error[len(error) - 1].split(':')[1].strip()
         tk.messagebox.showerror('Error', error)
 
 

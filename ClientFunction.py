@@ -10,6 +10,7 @@ from tkinter import filedialog
 
 class FunctionWindow(Client.ClientApp):
     def __init__(self, top_level_window):
+        super().__init__()
         self.window = tk.Toplevel(top_level_window)
     
     def run(self):
