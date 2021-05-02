@@ -22,5 +22,9 @@ error_message_dictionary = {
     200: 'Process not running',
     201: 'Kill request is denied',
     202: 'Cannot kill process',
-    203: 'Process not found'
+    203: 'Process not found',
+    300: 'Application not running',
+    301: 'Kill request is denied',
+    302: 'Cannot kill application',
+    303: 'Application not found'
 }
