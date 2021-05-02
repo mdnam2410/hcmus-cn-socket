@@ -524,28 +524,28 @@ class RegistryWindow(FunctionWindow):
         self.menu_function['values'] = self.MODIFICATION_TYPE
         self.menu_function.bind('<<ComboboxSelected>>', self.frame2_alternate_widgets)
 
-        # Entry for registry path input
-        self.entry_registry_path = tk.Entry(
+        # Entry for key name input
+        self.entry_key_name = tk.Entry(
             master=self.frame2
         )
         
-        # Container frame for registry key entry, new value entry, and value type combobox
+        # Container frame for value name entry, new data entry, and data type combobox
         self.frame_wrap = tk.Frame(
             master=self.frame2
         )
 
-        # Entry for registry key input
-        self.entry_registry_key = tk.Entry(
+        # Entry for value name input
+        self.entry_value_name = tk.Entry(
             master=self.frame_wrap
         )
         
-        # Entry for new value input
-        self.entry_new_value = tk.Entry(
+        # Entry for new data input
+        self.entry_data = tk.Entry(
             master=self.frame_wrap
         )
 
-        # Combobox for value types
-        self.VALUE_TYPES = [
+        # Combobox for data types
+        self.DATA_TYPES = [
             'String',
             'Binary',
             'DWORD',
@@ -553,14 +553,14 @@ class RegistryWindow(FunctionWindow):
             'Multi-String',
             'Expandable String'
         ]
-        self.value_type_var = tk.StringVar(self.window)
-        self.value_type_var.set('Data type')
+        self.data_type_var = tk.StringVar(self.window)
+        self.data_type_var.set('Data type')
 
-        self.menu_value_type = ttk.Combobox(
+        self.menu_data_type = ttk.Combobox(
             master=self.frame_wrap,
-            textvariable=self.value_type_var,
+            textvariable=self.data_type_var,
         )
-        self.menu_value_type['values'] = self.VALUE_TYPES
+        self.menu_data_type['values'] = self.DATA_TYPES
 
         # Text entry for displaying result
         self.text_result = tk.Text(
@@ -571,10 +571,10 @@ class RegistryWindow(FunctionWindow):
 
         # Packing all widgets
         self.menu_function.pack(fill=tk.X, padx=5, pady=5)
-        self.entry_registry_path.pack(fill=tk.X, padx=5, pady=5, expand=True)
-        self.entry_registry_key.pack(side=tk.LEFT, fill=tk.X, padx=5, pady=5, expand=True)
-        self.entry_new_value.pack(side=tk.LEFT, fill=tk.X, padx=5, pady=5, expand=True)
-        self.menu_value_type.pack(side=tk.LEFT, fill=tk.X, padx=5, pady=5, expand=True)
+        self.entry_key_name.pack(fill=tk.X, padx=5, pady=5, expand=True)
+        self.entry_value_name.pack(side=tk.LEFT, fill=tk.X, padx=5, pady=5, expand=True)
+        self.entry_data.pack(side=tk.LEFT, fill=tk.X, padx=5, pady=5, expand=True)
+        self.menu_data_type.pack(side=tk.LEFT, fill=tk.X, padx=5, pady=5, expand=True)
         self.frame_wrap.pack(fill=tk.X, expand=True)
         self.text_result.pack(fill=tk.X, expand=True)
 
@@ -608,13 +608,13 @@ class RegistryWindow(FunctionWindow):
         """ Displaying widgets according to the modification types chosen by user """
 
         if self.modification_type_var.get() in {'Get value', 'Delete value'}:
-            self.entry_new_value.pack_forget()
-            self.menu_value_type.pack_forget()
+            self.entry_data.pack_forget()
+            self.menu_data_type.pack_forget()
         elif self.modification_type_var.get() in {'Create key', 'Delete key'}:
             self.frame_wrap.pack_forget()    
         else:
-            self.entry_new_value.pack(side=tk.LEFT, fill=tk.X, padx=5, pady=5, expand=True)
-            self.menu_value_type.pack(side=tk.LEFT, fill=tk.X, padx=5, pady=5, expand=True)
+            self.entry_data.pack(side=tk.LEFT, fill=tk.X, padx=5, pady=5, expand=True)
+            self.menu_data_type.pack(side=tk.LEFT, fill=tk.X, padx=5, pady=5, expand=True)
             self.frame_wrap.pack()
 
     def browse_command(self):
@@ -645,28 +645,12 @@ class RegistryWindow(FunctionWindow):
         if v == 'key':
             option += '-' + v
         
-        path = self.entry_registry_path.get()
-        key = self.entry_registry_key.get()
-        value = self.entry_new_value.get()
+        key_name = self.entry_key_name.get()
+        value_name = self.entry_value_name.get()
+        new_data = self.entry_data.get()
+        data_type = self.data_type_var.get()
 
-        # Map keys from combobox's options to registry types
-        value_type_map = {
-            'String':            'REG_SZ',
-            'Binary':            'REG_BINARY',
-            'DWORD':             'REG_DWORD',
-            'QWORD':             'REG_QWORD',
-            'Multi-String':      'REG_MULTI_SZ',
-            'Expandable String': 'REG_EXPAND_SZ'
-        }
-        value_type = value_type_map[self.value_type_var.get()]
-
-        if v != 'key':
-            path = path + '\\' + key
-
-        if option == 'set':
-            client_data = path + ',' + value + ',' + value_type + '\n'
-        else:
-            client_data = path
+        client_data = ','.join([key_name, value_name, data_type, new_data])
 
         self.request('reg', option, client_data)
         error_code, error_message, server_data = self.receive_reply()
