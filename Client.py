@@ -506,6 +506,26 @@ class AppWindow(ProcessWindow):
         super().__init__(top_level_window)
         self.window.title('App')
 
+    def get_command(self):
+        self.request('process', 'list', '')
+        (error_code, error_message, server_data) = self.receive_reply()
+        
+        # Clear the table
+        self.delete_command()
+        if error_code == 0:
+            # Display each process in each row of the table
+            for line in server_data.splitlines():
+                self.table_process_iid += 1
+                t = tuple(line.split(','))
+                self.table.insert(
+                    parent='',
+                    index='end',
+                    iid=self.table_process_iid,
+                    values=t
+                )
+        else:
+            tk.messagebox.showwarning('Error', error_message)
+    
     def kill_command(self):
         # Create a new window to get input
         w = tk.Toplevel(self.window)
