@@ -50,7 +50,6 @@ while True:
 
         # Create message
         server_message = Util.package_message(error_code, error_message, server_data)
-        print(server_message.decode('utf-8'))
 
         # Send message
         conn.send(server_message)

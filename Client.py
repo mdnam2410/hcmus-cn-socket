@@ -9,8 +9,10 @@ import base64
 import io
 import tkinter.ttk as ttk
 
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk, ImageFile
 from tkinter import filedialog
+
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 server_address = ""
 server_port = 9098
@@ -75,7 +77,7 @@ class ClientApp:
         if not connected:
             raise NoConnectionError('No connection')
         else:
-            return Util.extract_message(s.recv(2 ** 16), message_type='server')
+            return Util.extract_message(s.recv(2 ** 20), message_type='server')
 
     def entry_server_address_on_enter(self, event):
         print("hover")
@@ -275,8 +277,13 @@ class ScreenshotWindow(FunctionWindow):
         error_code, error_message, data = self.receive_reply()
 
         if error_code == 0:
+            print(data)
+
+            # # Add padding
+            # data += '=' * (len(data) % 4)
+
             # Retrieve raw image from base64-encoded data
-            raw = io.BytesIO(base64.b64decode(data.encode('utf-8')))
+            raw = io.BytesIO(base64.b64decode(data.encode()))
 
             # Create the image
             self.original_image = Image.open(raw)
@@ -839,7 +846,8 @@ class RegistryWindow(FunctionWindow):
         self.btn_delete = tk.Button(
             master=self.frame3,
             text='Delete',
-            width=10
+            width=10,
+            command=self.delete_command
         )
 
         # Packing
@@ -905,6 +913,11 @@ class RegistryWindow(FunctionWindow):
                 tk.messagebox.showinfo('Success', 'Nice!')
         else:
             tk.messagebox.showerror('Error', error_message)
+
+    def delete_command(self):
+        self.text_result.configure(state='active')
+        self.text_result.delete('1.0', tk.END)
+        self.text_result.configure(state='disabled')
 
 
 if __name__ == '__main__':
