@@ -300,8 +300,8 @@ class ProcessWindow(FunctionWindow):
 class AppWindow(ProcessWindow):
     """ Reused from ProcessWindow"""
 
-    def __init__(self):
-        super.__init__()
+    def __init__(self, top_level_window):
+        super().__init__(top_level_window)
         self.window.title('App')
 
     def kill(self, window, entry):
