@@ -121,8 +121,10 @@ def action_reg(option, data):
         command = ['reg', 'delete', key, '/v', value, '/f']
     elif option == 'create-key':
         command = ['reg', 'add', key, '/f']
-    else:
+    elif option == 'delete-key':
         command = ['reg', 'delete', key, '/f']
+    else:
+        command = ['reg', 'import', data]
 
     command = ' '.join(command)
     error_code = 0 if os.system(command) == 0 else 400
