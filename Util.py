@@ -7,7 +7,7 @@ def extract_message(message, message_type='client'):
     field1, field2 = tuple(header_field.split(' '))
 
     # field1 is Error code if this is a server message
-    if type == 'server':
+    if message_type == 'server':
         field1 = int(field1)
     
     return (field1, field2, data_field)
