@@ -38,7 +38,20 @@ class ClientApp:
         server_address = self.entry_server_address.get()
         s.connect((server_address, server_port))
         connected = True
+        self.entry_server_address['state']=tk.DISABLED
+        self.btn_connect.pack_forget()
+        self.btn_disconnect.pack()
         tk.messagebox.showinfo('Success', 'Connected to server successfully')
+
+    def disconnect(self):
+        """ Close a connection to the server """
+        # bug now: client close but server is not
+        self.socket.send(b'disconect')
+        self.socket.close()
+        self.entry_server_address['state']=tk.NORMAL
+        self.btn_disconnect.pack_forget()
+        self.btn_connect.pack()
+        self.connected = False
 
     def request(self, command, option, data):
         global connected
@@ -58,6 +71,12 @@ class ClientApp:
         else:
             return s.recv(2 ** 16)
 
+    def entry_server_address_on_enter(self, event):
+        print("hover")
+        self.entry_server_address.delete('0','end')
+        self.entry_server_address.insert('0','127.0.0.1')
+        self.entry_server_address.unbind("<Enter>")
+
     def run(self):
         # Create main window
         self.root = tk.Tk()
@@ -76,6 +95,7 @@ class ClientApp:
             master=self.frame1
         )
         self.entry_server_address.insert(tk.END, 'Enter server address')
+        self.entry_server_address.bind("<Enter>",self.entry_server_address_on_enter)
         self.entry_server_address.pack(side=tk.LEFT, padx=5, pady=5)
 
         self.btn_connect = tk.Button(
@@ -84,6 +104,14 @@ class ClientApp:
             command=self.connect
         )
         self.btn_connect.pack(side=tk.LEFT, padx=5, pady=5)
+        
+        self.btn_disconnect = tk.Button(
+            master=self.frame1,
+            text='Disconnect',
+            command=self.disconnect
+        )
+        self.btn_disconnect.pack(side=tk.LEFT, padx=5, pady=5)
+        self.btn_disconnect.pack_forget()
 
         self.frame2 = tk.Frame(
             master=self.root,
