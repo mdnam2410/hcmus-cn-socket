@@ -507,7 +507,7 @@ class AppWindow(ProcessWindow):
         self.window.title('App')
 
     def get_command(self):
-        self.request('process', 'list', '')
+        self.request('app', 'list', '')
         (error_code, error_message, server_data) = self.receive_reply()
         
         # Clear the table
