@@ -45,13 +45,16 @@ class ClientApp:
 
     def disconnect(self):
         """ Close a connection to the server """
-        # bug now: client close but server is not
-        self.socket.send(b'disconect')
-        self.socket.close()
+
+        global connected
+        global s
+        
+        s.send(Util.package_message('disconnect', '', ''))
+        s.close()
+        connected = False
         self.entry_server_address['state']=tk.NORMAL
         self.btn_disconnect.pack_forget()
         self.btn_connect.pack()
-        self.connected = False
 
     def request(self, command, option, data):
         global connected
@@ -69,7 +72,7 @@ class ClientApp:
         if not connected:
             raise NoConnectionError('No connection')
         else:
-            return s.recv(2 ** 16)
+            return Util.extract_message(s.recv(2 ** 16), message_type='server')
 
     def entry_server_address_on_enter(self, event):
         print("hover")
