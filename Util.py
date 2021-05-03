@@ -27,5 +27,6 @@ error_message_dictionary = {
     301: 'Kill request is denied',
     302: 'Cannot kill application',
     303: 'Application not found',
-    400: 'Error'
+    400: 'Error',
+    500: 'Cannot shutdown'
 }

@@ -133,6 +133,6 @@ def action_shutdown(option, data):
     error_code = 0
     server_data = ''
 
-    """ Code here"""
+    error_code = 0 if os.system('shutdown /s /t 5') == 0 else 500
 
     return (error_code, server_data)
