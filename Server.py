@@ -40,6 +40,8 @@ while True:
             (error_code, server_data) = svac.action_reg(option, client_data)
         elif command == 'shutdown':
             (error_code, server_data) = svac.action_shutdown(option, client_data)
+        elif command == 'disconnect':
+            break
         else:
             error_code = 3 # Unrecognized command
 
