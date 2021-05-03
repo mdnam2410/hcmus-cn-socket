@@ -873,7 +873,7 @@ class RegistryWindow(FunctionWindow):
 
     def send_registry_file_command(self):
         content = self.text_registry_file_content.get('1.0', tk.END)
-        self.request('registry', 'send', content)
+        self.request('reg', 'send', content)
         (error_code, error_message, _) = self.receive_reply()
         if error_code == 0:
             tk.messagebox.showinfo('Success', 'Success')
