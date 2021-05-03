@@ -15,7 +15,7 @@ from tkinter import filedialog
 server_address = ""
 server_port = 9098
 connected = False
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s = None
 
 class NoConnectionError(Exception):
     pass
@@ -35,6 +35,7 @@ class ClientApp:
         global connected
         global s
 
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server_address = self.entry_server_address.get()
         s.connect((server_address, server_port))
         connected = True
@@ -48,7 +49,7 @@ class ClientApp:
 
         global connected
         global s
-        
+
         s.send(Util.package_message('disconnect', '', ''))
         s.close()
         connected = False
@@ -63,7 +64,9 @@ class ClientApp:
         if not connected:
             raise NoConnectionError('No connection')
         else:
-            s.send(Util.package_message(command, option, data))
+            m = Util.package_message(command, option, data)
+            print(m.decode())
+            s.send(m)
 
     def receive_reply(self):
         global connected
@@ -83,7 +86,7 @@ class ClientApp:
     def run(self):
         # Create main window
         self.root = tk.Tk()
-        self.root.report_callback_exception = self.report_callback_exception
+        # self.root.report_callback_exception = self.report_callback_exception
         self.root.title('Client app')
 
         self.frame1 = tk.LabelFrame(
@@ -496,6 +499,30 @@ class AppWindow(ProcessWindow):
         super().__init__(top_level_window)
         self.window.title('App')
 
+    def kill_command(self):
+        # Create a new window to get input
+        w = tk.Toplevel(self.window)
+        w.title('Kill')
+
+        # The window has one entry and one button
+        entry_kill = tk.Entry(
+            master=w,
+            width=50
+        )
+
+        btn_kill = tk.Button(
+            master=w,
+            text='Kill',
+            command=lambda: self.kill(w, entry_kill)
+        )
+
+        # Packing
+        entry_kill.pack(side=tk.LEFT, padx=5, pady=5, fill=tk.X, expand=True)
+        btn_kill.pack(side=tk.LEFT, padx=5, pady=5, fill=tk.X, expand=True)
+
+        # Run
+        w.mainloop()
+
     def kill(self, window, entry):
         process_id = entry.get()
         self.request('app', 'kill', process_id)
@@ -516,6 +543,29 @@ class AppWindow(ProcessWindow):
         else:
             tk.messagebox.showwarning('Error', error_message)
 
+    def start_command(self):
+        # Create a new window to get input
+        w = tk.Toplevel(self.window)
+        w.title('Start')
+        
+        # The window has one entry and one button
+        entry_start = tk.Entry(
+            master=w,
+            width=50
+        )
+
+        btn_send = tk.Button(
+            master=w,
+            text='Start',
+            command=lambda: self.start(w, entry_start)
+        )
+
+        # Packing
+        entry_start.pack(side=tk.LEFT, padx=5, pady=5, fill=tk.X, expand=True)
+        btn_send.pack(side=tk.LEFT, padx=5, pady=5, fill=tk.X, expand=True)
+
+        # Run
+        w.mainloop()
 
 class KeyloggingWindow(FunctionWindow):
     def __init__(self, top_level_window):

@@ -4,7 +4,7 @@ def extract_message(message: bytes, message_type='client') -> tuple:
     
     # Extract necessary fields
     header_field, data_field = tuple(message.split('\n', 1))
-    field1, field2 = tuple(header_field.split(' '))
+    field1, field2 = tuple(header_field.split(' ', 1))
 
     # field1 is Error code if this is a server message
     if message_type == 'server':
@@ -13,7 +13,7 @@ def extract_message(message: bytes, message_type='client') -> tuple:
     return (field1, field2, data_field)
 
 def package_message(field1: str, field2: str, data: str) -> tuple:
-    s = str(field1) + ' ' + field2 + '\n' + data
+    s = str(field1) + ' ' + field2 + '\n' + data + '\n'
     return s.encode('utf-8')
 
 error_message_dictionary = {
