@@ -8,6 +8,7 @@ import traceback
 import base64
 import io
 import tkinter.ttk as ttk
+import os
 
 from PIL import Image, ImageTk, ImageFile
 from tkinter import filedialog
@@ -51,8 +52,7 @@ class ClientApp:
 
         global connected
         global s
-
-        s.send(Util.package_message('disconnect', '', ''))
+        
         s.close()
         connected = False
         self.entry_server_address['state']=tk.NORMAL
@@ -62,7 +62,6 @@ class ClientApp:
     def request(self, command, option, data):
         global connected
         global s
-
         if not connected:
             raise NoConnectionError('No connection')
         else:
@@ -704,6 +703,8 @@ class RegistryWindow(FunctionWindow):
     def __init__(self, top_level_window):
         super().__init__(top_level_window)
 
+        self.path =''
+
         self.window.grab_set()
         self.window.title('Registry')
 
@@ -797,6 +798,7 @@ class RegistryWindow(FunctionWindow):
         self.entry_key_name = tk.Entry(
             master=self.frame2
         )
+        self.entry_key_name.insert('0','Path key')
         
         # Container frame for value name entry, new data entry, and data type combobox
         self.frame_wrap = tk.Frame(
@@ -807,11 +809,13 @@ class RegistryWindow(FunctionWindow):
         self.entry_value_name = tk.Entry(
             master=self.frame_wrap
         )
+        self.entry_value_name.insert('0','Value')
         
         # Entry for new data input
         self.entry_data = tk.Entry(
             master=self.frame_wrap
         )
+        self.entry_data.insert('0','Data')
 
         # Combobox for data types
         self.DATA_TYPES = [
@@ -889,12 +893,13 @@ class RegistryWindow(FunctionWindow):
 
     def browse_command(self):
         try:
-            path = filedialog.askopenfilename(
+            self.path = filedialog.askopenfilename(
                 title='Select registry file',
                 filetypes=(('reg files', '*.reg'), ('All files', '*.*'))
             )
-            content = open(path).read()
-            self.entry_browse_registry_file.insert(0, path)
+            self.entry_browse_registry_file.insert(0, self.path)
+            content = open(self.path).read()
+            self.text_registry_file_content.delete('1.0',tk.END)
             self.text_registry_file_content.insert('1.0', content)
         except:
             pass

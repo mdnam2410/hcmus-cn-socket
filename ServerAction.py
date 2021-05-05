@@ -104,27 +104,35 @@ def action_reg(option, data):
     server_data = ''
     
     command = ''
-    key, value, data_type, data = tuple(data.split(',', 3))
-
-    if option == 'get':
-        command = ['reg', 'query', key, '/v', value]
-        try:
-            server_data = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
-            server_data = server_data.decode().split()[-1].split('\\')[0]
-            return (error_code, server_data)
-        except subprocess.CalledProcessError:
-            error_code = 400
-        
-    elif option == 'set':
-        command = ['reg', 'add', key, '/v', value, '/t', dataDictType[data_type], '/d', data, '/f']
-    elif option == 'delete':
-        command = ['reg', 'delete', key, '/v', value, '/f']
-    elif option == 'create-key':
-        command = ['reg', 'add', key, '/f']
-    elif option == 'delete-key':
-        command = ['reg', 'delete', key, '/f']
+    if option == 'send':
+        print(option)
+        nameTempRegFile = 'recv.reg'
+        print(data)
+        file = open(nameTempRegFile,'w')
+        file.write(data)
+        file.close()
+        command = ['reg', 'import', nameTempRegFile]
     else:
-        command = ['reg', 'import', data]
+        key, value, data_type, data = tuple(data.split(',', 3))
+
+        if option == 'get':
+            command = ['reg', 'query', key, '/v', value]
+            try:
+                server_data = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
+                server_data = server_data.decode().split()[-1].split('\\')[0]
+                return (error_code, server_data)
+            except subprocess.CalledProcessError:
+                error_code = 400
+            
+        elif option == 'set':
+            command = ['reg', 'add', key, '/v', value, '/t', dataDictType[data_type], '/d', data, '/f']
+        elif option == 'delete':
+            command = ['reg', 'delete', key, '/v', value, '/f']
+        elif option == 'create-key':
+            command = ['reg', 'add', key, '/f']
+        else:
+            # option == 'delete-key':
+            command = ['reg', 'delete', key, '/f']
 
     command = ' '.join(command)
     error_code = 0 if os.system(command) == 0 else 400
