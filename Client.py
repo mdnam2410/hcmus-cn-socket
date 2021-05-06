@@ -369,8 +369,8 @@ class ProcessWindow(FunctionWindow):
             columns=('ID', 'Name', 'Count Thread'),
         )
         self.table['show'] = 'headings'
-        self.table.heading('#1', text='ID')
-        self.table.heading('#2', text='Name')
+        self.table.heading('#1', text='Name')
+        self.table.heading('#2', text='ID')
         self.table.heading('#3', text='Count Thread')
         self.table.column('#1', stretch=tk.YES)
         self.table.column('#2', stretch=tk.YES)
