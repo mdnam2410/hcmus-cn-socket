@@ -18,7 +18,7 @@ while True:
     while True:
         # Message received from socket
         client_message = conn.recv(2 ** 16)
-        if client_message == b'':
+        if len(client_message) == 0:
             break
 
         # Extract the received message
