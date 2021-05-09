@@ -70,7 +70,7 @@ def start(name):
 
 def kill(pid):
     r = subprocess.run(
-        ['powershell', '-Command', f'Stop-Process -ID {pid} -Force'],
+        ['powershell', '-Command', f'Stop-Process -ID {pid}'],
         capture_output=True
     )
     
