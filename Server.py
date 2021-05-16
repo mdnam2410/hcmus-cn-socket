@@ -10,6 +10,11 @@ class Server:
         self.SERVER_PORT = 9098
         self.SERVER_ADDRESS = socket.gethostbyname(socket.gethostname())
 
+        # Listening socket
+        self.s = None
+        # Socket used to communicate with the client
+        self.client_connection = None
+
         # Main window
         self.root = tk.Tk()
         self.root.geometry('100x100')
@@ -37,7 +42,6 @@ class Server:
         self.s.bind((self.SERVER_ADDRESS, self.SERVER_PORT))
         self.s.listen()
 
-        self.client_connection = None
         self.t = threading.Thread(target=self.communicate, args=(self.client_connection,))
         self.t.start()
 
@@ -49,7 +53,8 @@ class Server:
 
         if self.client_connection is not None:
             self.client_connection.close()
-        self.s.close()
+        if self.s is not None:
+            self.s.close()
         self.btn_open_server.configure(text='Open server', command=self.start)
 
     def communicate(self, client_connection):
