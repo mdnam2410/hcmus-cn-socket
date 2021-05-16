@@ -4,16 +4,16 @@ import Util
 import socket
 
 SERVER_PORT = 9098
-# SERVER_ADDRESS = socket.gethostbyname(socket.gethostname())
-SERVER_ADDRESS = '127.0.0.1'
+SERVER_ADDRESS = socket.gethostbyname(socket.gethostname())
 
-socket = socket.socket()
-socket.bind((SERVER_ADDRESS, SERVER_PORT))
-socket.listen()
+s = socket.socket()
+s.bind((SERVER_ADDRESS, SERVER_PORT))
+s.listen()
+
 
 while True:
     # Wait for client connection
-    conn, _ = socket.accept()
+    conn, _ = s.accept()
 
     while True:
         # Message received from socket
