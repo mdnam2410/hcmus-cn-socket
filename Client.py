@@ -1,19 +1,14 @@
-import ClientFunction
 import Util
 
 import socket
 import tkinter as tk
-import tkinter.messagebox
 import traceback
 import base64
 import io
 import tkinter.ttk as ttk
-import os
 
-from PIL import Image, ImageTk, ImageFile
+from PIL import Image, ImageTk
 from tkinter import filedialog
-
-ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 server_address = ""
 server_port = 9098
@@ -66,7 +61,6 @@ class ClientApp:
             raise NoConnectionError('No connection')
         else:
             m = Util.package_message(command, option, data)
-            print(m.decode())
             s.send(m)
 
     def receive_reply(self):
@@ -79,7 +73,6 @@ class ClientApp:
             return Util.extract_message(s.recv(2 ** 20), message_type='server')
 
     def entry_server_address_on_enter(self, event):
-        print("hover")
         self.entry_server_address.delete('0','end')
         self.entry_server_address.insert('0','127.0.0.1')
         self.entry_server_address.unbind("<Enter>")
@@ -276,7 +269,6 @@ class ScreenshotWindow(FunctionWindow):
         error_code, error_message, data = self.receive_reply()
 
         if error_code == 0:
-            print(data)
 
             # # Add padding
             # data += '=' * (len(data) % 4)
