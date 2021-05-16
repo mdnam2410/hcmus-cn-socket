@@ -6,8 +6,6 @@ import io
 import pyautogui
 import os
 import subprocess
-import wmi
-from PIL import Image
 
 
 def action_screenshot(option, data):
