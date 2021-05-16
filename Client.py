@@ -2,6 +2,7 @@ import Util
 
 import socket
 import tkinter as tk
+import tkinter.messagebox
 import traceback
 import base64
 import io
@@ -33,14 +34,17 @@ class ClientApp:
         global connected
         global s
 
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        server_address = self.entry_server_address.get()
-        s.connect((server_address, server_port))
-        connected = True
-        self.entry_server_address['state']=tk.DISABLED
-        self.btn_connect.pack_forget()
-        self.btn_disconnect.pack()
-        tk.messagebox.showinfo('Success', 'Connected to server successfully')
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            server_address = self.entry_server_address.get()
+            s.connect((server_address, server_port))
+            connected = True
+            self.entry_server_address['state']=tk.DISABLED
+            self.btn_connect.pack_forget()
+            self.btn_disconnect.pack()
+            tk.messagebox.showinfo('Success', 'Connected to server successfully')
+        except ConnectionError:
+            tk.messagebox.showerror('Error', 'Cannot connect to server')
 
     def disconnect(self):
         """ Close a connection to the server """
