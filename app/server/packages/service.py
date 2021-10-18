@@ -1,9 +1,9 @@
 import app.core.protocol as protocol
-import keyboard_manip
-import machine_manip
-import process_manip
-import reg_manip
-import screen_manip
+import app.server.packages.keyboard_manip as keyboard_manip
+import app.server.packages.machine_manip as machine_manip
+import app.server.packages.process_manip as process_manip
+import app.server.packages.reg_manip as reg_manip
+import app.server.packages.screen_manip as screen_manip
 
 import socket
 
