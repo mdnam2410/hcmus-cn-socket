@@ -26,7 +26,7 @@ class Service:
             'app': self._request_app,
             'keylogging': self._request_keylogging,
             'reg': self._request_registry,
-            'shutdown': self._request_machine,
+            'machine': self._request_machine,
         }
 
     def start(self):
@@ -86,7 +86,7 @@ class Service:
 
     def do_request(self, request: protocol.Request) -> protocol.Response:
         if request.command() not in self.request_functions_dict:
-            return protocol.Response(protocol.SC_UNRECOGNIZED_COMMAND, '')
+            return protocol.Response(protocol.SC_ERROR_UNRECOGNIZED_COMMAND, '')
         return self.request_functions_dict[request.command()](request.option(), request.content())
 
     def _request_screenshot(self, option, content) -> protocol.Response:
@@ -143,27 +143,27 @@ class Service:
 
         if option == 'send':
             if not reg_manip.import_file(content):
-                status_code = protocol.SC_ERROR
+                status_code = protocol.SC_ERROR_UNKNOWN
         else:
             key, value, type, d = tuple(content.split(',', 3))
             if option == 'get':
                 result = reg_manip.get(key, value)
                 if not result:
-                    status_code = protocol.SC_ERROR
+                    status_code = protocol.SC_ERROR_UNKNOWN
                 else:
                     data = result
             elif option == 'set':
                 if not reg_manip.set(key, value, type, d):
-                    status_code = protocol.SC_ERROR
+                    status_code = protocol.SC_ERROR_UNKNOWN
             elif option == 'delete':
                 if not reg_manip.delete(key, value):
-                    status_code = protocol.SC_ERROR
+                    status_code = protocol.SC_ERROR_UNKNOWN
             elif option == 'create-key':
                 if not reg_manip.create_key(key):
-                    status_code = protocol.SC_ERROR
+                    status_code = protocol.SC_ERROR_UNKNOWN
             elif option == 'delete-key':
                 if not reg_manip.delete_key(key):
-                    status_code = protocol.SC_ERROR
+                    status_code = protocol.SC_ERROR_UNKNOWN
 
         return protocol.Response(status_code, data)
 
@@ -171,7 +171,7 @@ class Service:
         status_code = protocol.SC_OK
         data = ''
 
-        if option == '':
+        if option == 'shutdown':
             if not machine_manip.shutdown():
                 status_code = protocol.SC_MACHINE_CANNOT_SHUTDOWN
         

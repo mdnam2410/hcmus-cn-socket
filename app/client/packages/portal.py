@@ -190,15 +190,15 @@ class Portal:
     # ---- Machine ----
 
     def shutdown_peer(self) -> protocol.Response:
-        return self.request('shutdown', '', '')
+        return self.request('machine', 'shutdown', '')
 
     def log_out_peer(self) -> protocol.Response:
-        # TODO: define protocol for logout
-        pass
+        self.request('machine', 'log-out', '')
 
     def get_mac_address(self) -> protocol.Response:
-        # TODO: define protocol for MAC getter
-        pass
+        return self.request('machine', 'mac', '')
+
+    # ---- File system ----
 
     def get_file_system_tree(self) -> protocol.Response:
         # TODO: define protocol for file system tree

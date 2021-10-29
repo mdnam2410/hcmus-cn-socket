@@ -61,9 +61,13 @@ Where:
 * `data`: The data returned by the server to the client requirements (e.g. bytes for sreenshot).
 
 ## 3 Commands
-Function | Command | Option | Data | Description
+Scope | Command | Option | Data | Description
 -------- | ------- | ------ | ---- | -----------
 Screenshot | `screenshot` | `<none>` | `<none>` | Require a screenshot (in JPG (PNG?) format)
+Screen live streaming | `stream` | `<none>` | `<none>` | Request for screen streaming
+Screen live streaming | `stream` | `start` | `<none>` | Start/Restart streaming
+Screen live streaming | `stream` | `pause` | `<none>` | Pause streaming
+Screen live streaming | `stream` | `stop` | `<none>` | Stop streaming
 Running Processes | `process` | `list` | `<none>` | Require a list of processes
 Running Processes | `process` | `kill` | `<PID>` | Kill processes
 Running Processes | `process` | `start` | `<process name>` | Start processes
@@ -72,23 +76,31 @@ Running Applications | `app` | `kill` | `<PID>` | Kill applications
 Running Applications | `app` | `start` | `<application name>` | Start applications
 Keylogging | `keylogging` | `hook` | `<none>` | Start hooking
 Keylogging | `keylogging` | `unhook` | `<none>` | Stop hooking. The server automatically returns the hooked keystrokes.
+Keylogging | `keylogging` | `lock` | `<none>` | Lock keyboard
+Keylogging | `keylogging` | `unlock` | `<none>` | Unlock keyboard
 Modifying Registries | `reg` | `send` | `<.reg file>` | Send the registry file to the server
 Modifying Registries | `reg` | `get` | `<path to registry>` | Get the registry value
 Modifying Registries | `reg` | `set` | `<path to registry>,<new value>,<value type>` | Set the registry value
 Modifying Registries | `reg` | `delete` | `<path to registry>` | Delete the registry
 Modifying Registries | `reg` | `create-key` | `<new registry key>` | Create new registry key
 Modifying Registries | `reg` | `delete-key` | `<path to registry>` | Delete registry key
-Shutdown | `shutdown` | `<none>` | `<none>` | Shut the server down
+File system | `file` | `TBD` | `TBD` | Work on file system
+Machine | `machine` | `shutdown` | `<none>` | Shut the server down
+Machine | `machine` | `log-out` | `<none>` | Log out
+Machine | `machine` | `mac` | `<none>` | Get MAC address
 
 
-## 4 Error codes
-The following table shows the error codes used in this socket application.
 
-Function | Error code | Message | Description
+## 4 Status codes
+The following table shows the status codes used in this socket application.
+
+Scope | Status code | Message | Description
 -------- | ---------- | ------- | -----------
 General error | `000` | `OK` | No error. All tasks done successfully.
 General error | `001` | `Server not running` | Cannot contact the server because it is not running.
 General error | `002` | `Server shut down` | The server shut down by any mean, e.g. task kill, computer shut down, keyboard interrupt (Ctrl + C)
+General error | `003` | `Unrecognized command` | Unrecognized command
+General error | `004` | `Unknown error` | Unknown error
 Screenshot | `100` | `Cannot take screenshot` | Cannot take screenshot
 Running Processes | `200` | `Process not running` | Client tries to kill a process that is not running
 Running Processes | `201` | `Kill request is denied` | Denied for many reasons, e.g. trying to kill a system process, etc.
@@ -98,3 +110,6 @@ Running Applications | `300` | `Application not running` | Client tries to kill 
 Running Applications | `301` | `Kill request is denied` | Denied for many reasons, e.g. trying to kill a system process, etc.
 Running Applications | `302` | `Cannot kill application` | Cannot kill a running application
 Running Applications | `303` | `Application not found` | Cannot find the application specified
+Machine | `500` | `Cannot shutdown` | Cannot shutdown the server
+Machine | `501` | `Cannot log out` | Cannot log out
+Machine | `502` | `Cannot get MAC address` | Cannot get MAC address
