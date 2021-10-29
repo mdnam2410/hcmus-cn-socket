@@ -174,7 +174,12 @@ class Service:
         if option == 'shutdown':
             if not machine_manip.shutdown():
                 status_code = protocol.SC_MACHINE_CANNOT_SHUTDOWN
-        
+        elif option == 'mac':
+            m = machine_manip.get_mac()
+            if m is None:
+                status_code = protocol.SC_MACHINE_CANNOT_GET_MAC
+            else:
+                data = m
         return protocol.Response(status_code, data)
 
 if __name__ == '__main__':
