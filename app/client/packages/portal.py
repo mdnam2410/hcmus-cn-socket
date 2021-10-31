@@ -1,6 +1,8 @@
 import app.core.protocol as protocol
+from app.client.packages.screen_stream import ScreenStream
 
 import socket
+from typing import Tuple, Union
 
 
 class Portal:
@@ -38,9 +40,53 @@ class Portal:
         """
         return self.request('screenshot', '', '')
 
-    def get_video_stream(self):
-        # TODO: define video stream protocol
-        pass
+    def initialize_screen_stream(self) -> Tuple[protocol.Response, Union[ScreenStream, None]]:
+        """Initializes the screen stream service
+
+        Returns:
+            Tuple[protocol.Response, Union[ScreenStream, None]]: A 2-tuple of 
+            (response, stream_object), where
+            - response: the response from server
+            - stream_object: A ScreenStream object if successful,
+            None otherwise
+        """
+        vs = ScreenStream()
+        response = self.request('stream', '', '')
+        if not response.ok():
+            vs = None
+        return (response, vs)
+
+    def start_stream(self) -> protocol.Response:
+        """Starts streaming
+
+        Once called, the associated ScreenStream object will start receiving
+        frames from the server. Please call this function only once.
+
+        Returns:
+            protocol.Response
+        """
+        return self.request('stream', 'start', '')
+
+    def restart_stream(self) -> protocol.Response:
+        """Restarts the stream
+        """
+        return self.request('stream', 'restart', '')
+
+    def pause_stream(self) -> protocol.Response:
+        """Pauses the stream
+
+        Returns:
+            protocol.Response: [description]
+        """
+        return self.request('stream', 'pause', '')
+
+    def stop_stream(self) -> protocol.Response:
+        """Stops the stream
+
+        Returns:
+            protocol.Response: [description]
+        """
+        return self.request('stream', 'stop', '')
 
 
     # ---- Processes and apps ----

@@ -39,6 +39,8 @@ STATUS_MESSAGES = {
 MESSAGE_ENCODING = 'utf-8'
 SERVER_PORT = 9098
 SOCKET_BUFFER = 1024
+VIDEO_STREAM_PORT = 9890
+VIDEO_STREAM_BUFFER = 32768
 
 def decode(raw: bytes):
     """Decodes the raw message into different fields
@@ -100,7 +102,7 @@ class Response(Message):
         super().__init__(str(status_code), STATUS_MESSAGES[status_code], content)
 
     def ok(self) -> bool:
-        return self.status_code() != 0
+        return self.status_code() == SC_OK
 
     def status_code(self) -> int:
         return int(self.field1)

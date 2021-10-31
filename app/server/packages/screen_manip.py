@@ -1,3 +1,6 @@
+import app.core.protocol as protocol
+
+import base64
 import base64
 import io
 import pyautogui
@@ -12,7 +15,3 @@ def take_screenshot() -> str:
     b = io.BytesIO()
     img.save(b, format='PNG')
     return base64.b64encode(b.getvalue()).decode('utf-8')
-
-def video_stream() -> str:
-    # TODO: implements video stream protocol
-    pass
