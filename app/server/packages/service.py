@@ -1,3 +1,4 @@
+from PIL.Image import MESH
 import app.core.protocol as protocol
 import app.server.packages.keyboard_manip as keyboard_manip
 import app.server.packages.machine_manip as machine_manip
@@ -141,7 +142,7 @@ class Service:
             logging.debug('Stream service is not running')
             status_code = protocol.SC_ERROR_UNKNOWN
 
-        return protocol.Response(status_code, data)
+        return protocol.Response(status_code, data.encode(protocol.MESSAGE_ENCODING))
 
     def _request_process(self, option, content):
         status_code = protocol.SC_OK
@@ -175,7 +176,7 @@ class Service:
                           else protocol.SC_APP_KILL_REQUEST_IS_DENIED if q == 2 \
                           else protocol.SC_APP_CANNOT_KILL
 
-        return protocol.Response(status_code, data)
+        return protocol.Response(status_code, data.encode(protocol.MESSAGE_ENCODING))
 
     def _request_keylogging(self, option, content) -> protocol.Response:
         status_code = protocol.SC_OK
@@ -186,7 +187,7 @@ class Service:
         elif option == 'unhook':
             data = keyboard_manip.keylogger.unhook()
         
-        return protocol.Response(status_code, data)
+        return protocol.Response(status_code, data.encode(protocol.MESSAGE_ENCODING))
 
     def _request_registry(self, option, content) -> protocol.Response:
         status_code = protocol.SC_OK
@@ -216,7 +217,7 @@ class Service:
                 if not reg_manip.delete_key(key):
                     status_code = protocol.SC_ERROR_UNKNOWN
 
-        return protocol.Response(status_code, data)
+        return protocol.Response(status_code, data.encode(protocol.MESSAGE_ENCODING))
 
     def _request_machine(self, option, content) -> protocol.Response:
         status_code = protocol.SC_OK
@@ -231,7 +232,7 @@ class Service:
                 status_code = protocol.SC_MACHINE_CANNOT_GET_MAC
             else:
                 data = m
-        return protocol.Response(status_code, data)
+        return protocol.Response(status_code, data.encode(protocol.MESSAGE_ENCODING))
 
 if __name__ == '__main__':
     # Create a service object

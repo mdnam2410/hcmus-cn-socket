@@ -55,10 +55,9 @@ class ScreenStream:
         """
         while True:
             data =  self.receive()
-            w, h, frame = tuple(data.split('\n', 2))
-            frame = np.array(frame.encode('utf-8'))
+            w, h, frame = tuple(data.split(b'\n', 2))
             frame = base64.urlsafe_b64decode(frame)
-            yield int(w), int(h), frame
+            yield int(w.decode(protocol.MESSAGE_ENCODING)), int(h.decode(protocol.MESSAGE_ENCODING)), frame
 
 
 if __name__ == '__main__':

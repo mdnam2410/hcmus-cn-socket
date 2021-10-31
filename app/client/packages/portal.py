@@ -23,6 +23,8 @@ class Portal:
         self.connected = False
     
     def request(self, command, option, data) -> protocol.Response:
+        if type(data) == str:
+            data = data.encode(protocol.MESSAGE_ENCODING)
         req = protocol.Request(command, option, data)
         protocol.send(self.s, req)
 

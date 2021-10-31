@@ -60,12 +60,14 @@ class StreamService:
         """
 
         status_code = 0
-        data = ''
+        data = b''
 
         w, h, frame = self.capture_frame()
-        im_to_str = base64.urlsafe_b64encode(frame).decode('utf-8')
-        logging.debug(f'Encoded frame using base64, frame size {len(im_to_str)}')
-        data = '\n'.join([str(w), str(h), im_to_str])
+        b64encoded = base64.urlsafe_b64encode(frame)
+        logging.debug(f'Encoded frame using base64, frame size {len(b64encoded)}')
+        data = b'\n'.join(
+            [str(w).encode(protocol.MESSAGE_ENCODING), str(h).encode(protocol.MESSAGE_ENCODING), b64encoded]
+        )
 
         response = protocol.Response(status_code, data)
         protocol.send(self.stream_socket, response)
