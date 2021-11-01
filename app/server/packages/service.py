@@ -1,4 +1,3 @@
-from PIL.Image import MESH
 import app.core.protocol as protocol
 import app.server.packages.keyboard_manip as keyboard_manip
 import app.server.packages.machine_manip as machine_manip

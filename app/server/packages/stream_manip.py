@@ -3,6 +3,7 @@ import app.core.protocol as protocol
 import base64
 import ctypes
 import logging
+import lzma
 from mss import mss
 from PIL import Image
 import socket
@@ -30,7 +31,7 @@ class StreamService:
 
         self.is_streaming = False
         self.stop_signal = False
-        self.sleep_between_frames = 0.3
+        self.sleep_between_frames = 0.2
         self.FRAME_SIZE = (480, 360)
 
     def connect_to_peer(self):
@@ -53,7 +54,7 @@ class StreamService:
             )
             img = img.resize(size=self.FRAME_SIZE, resample=Image.ANTIALIAS)
             logging.debug('Resized frame')
-            return img.width, img.height, img.tobytes()
+            return img.width, img.height, lzma.compress(img.tobytes())
 
     def send_frame(self):
         """Sends one screenshot frame to peer

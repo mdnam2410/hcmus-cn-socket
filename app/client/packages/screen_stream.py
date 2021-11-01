@@ -1,8 +1,10 @@
+import logging
 import app.core.protocol as protocol
 
 import base64
 import cv2
 import numpy as np
+import lzma
 from PIL import Image
 import socket
 import threading
@@ -57,6 +59,7 @@ class ScreenStream:
             data =  self.receive()
             w, h, frame = tuple(data.split(b'\n', 2))
             frame = base64.urlsafe_b64decode(frame)
+            frame = lzma.decompress(frame)
             yield int(w.decode(protocol.MESSAGE_ENCODING)), int(h.decode(protocol.MESSAGE_ENCODING)), frame
 
 
