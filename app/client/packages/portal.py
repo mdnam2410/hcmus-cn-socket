@@ -1,4 +1,5 @@
 import app.core.protocol as protocol
+from app.core.exceptions import SendingError, ServerError, ReceivingError
 from app.client.packages.screen_stream import ScreenStream
 
 import socket
@@ -15,21 +16,29 @@ class Portal:
 
     def connect(self, addr, port):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.s.connect((addr, port))
+        try:
+            self.s.connect((addr, port))
+        except OSError as e:
+            raise ServerError('Cannot connect to server') from e
         self.connected = True
 
     def disconnect(self):
         self.s.close()
         self.connected = False
+
+    def is_connected(self):
+        return self.connected
     
     def request(self, command, option, data) -> protocol.Response:
         if type(data) == str:
             data = data.encode(protocol.MESSAGE_ENCODING)
-        req = protocol.Request(command, option, data)
-        protocol.send(self.s, req)
-
-        response = protocol.receive(self.s)
-        return protocol.Response.from_bytes(response)
+        try:
+            req = protocol.Request(command, option, data)
+            protocol.send(self.s, req)
+            response = protocol.receive(self.s)
+            return protocol.Response.from_bytes(response)
+        except (SendingError, ReceivingError) as e:
+            raise ServerError('Server is down') from e
 
     # ---- Screenshot and video stream ----
 
@@ -37,8 +46,11 @@ class Portal:
         """Gets a screenshot from the server
 
         Returns:
-            protocol.Response: On success, the content of the response will be
-            a base64-encoded string of the image.
+            app.core.protocol.Response:
+                On success, return the base64-encoded image
+
+        Raises:
+            app.core.exceptions.ServerError
         """
         return self.request('screenshot', '', '')
 
@@ -46,11 +58,11 @@ class Portal:
         """Initializes the screen stream service
 
         Returns:
-            Tuple[protocol.Response, Union[ScreenStream, None]]: A 2-tuple of 
-            (response, stream_object), where
-            - response: the response from server
-            - stream_object: A ScreenStream object if successful,
-            None otherwise
+            tuple: A 2-tuple of (response, screenstream). `screenstream` is None if
+            the initialization is fail.
+        
+        Raises:
+            app.core.exceptions.ServerError
         """
         vs = ScreenStream()
         response = self.request('stream', '', '')
@@ -65,20 +77,32 @@ class Portal:
         frames from the server. Please call this function only once.
 
         Returns:
-            protocol.Response
+            app.core.protocol.Response
+
+        Raises:
+            app.core.exceptions.ServerError
         """
         return self.request('stream', 'start', '')
 
     def restart_stream(self) -> protocol.Response:
         """Restarts the stream
+
+        Returns:
+            app.core.protocol.Response
+
+        Raises:
+            app.core.exceptions.ServerError
         """
         return self.request('stream', 'restart', '')
 
     def pause_stream(self) -> protocol.Response:
         """Pauses the stream
-
+        
         Returns:
-            protocol.Response: [description]
+            app.core.protocol.Response
+
+        Raises:
+            app.core.exceptions.ServerError
         """
         return self.request('stream', 'pause', '')
 
@@ -86,7 +110,10 @@ class Portal:
         """Stops the stream
 
         Returns:
-            protocol.Response: [description]
+            app.core.protocol.Response
+
+        Raises:
+            app.core.exceptions.ServerError
         """
         return self.request('stream', 'stop', '')
 
@@ -97,13 +124,16 @@ class Portal:
         """Gets a list of running processes on the server machine
 
         Returns:
-            protocol.Response: On success, the content will be a string of
+            `app.core.protocol.Response`: On success, return a  `bytes` object with
             comma-separated value of <process id>,<thread count>,<description>.
 
             For example:
             1,1,system.exe\n
             2,1,login.exe\n
             ...
+
+        Raises:
+            app.core.exceptions.ServerError
         """
         return self.request('process', 'list', '')
 
@@ -114,7 +144,10 @@ class Portal:
             process_name (str): Process name
 
         Returns:
-            protocol.Response: The content is empty
+            app.core.protocol.Response
+
+        Raises:
+            app.core.exceptions.ServerError
         """
         return self.request('process', 'start', process_name)
 
@@ -125,7 +158,10 @@ class Portal:
             pid (int): Process ID
 
         Returns:
-            protocol.Response: The content is empty
+            app.core.protocol.Response
+
+        Raises:
+            app.core.exceptions.ServerError
         """
         return self.request('process', 'kill', str(pid))
 
@@ -133,32 +169,89 @@ class Portal:
         """Lists the running applications on the server
 
         Returns:
-            protocol.Response: The content is a string of comma-separated
-            values. See `Portal.list_processes` for example.
+            app.core.protocol.Response: The same as `Portal.list_processes`
+
+        Raises:
+            app.core.exceptions.ServerError
         """
         return self.request('app', 'list', '')
 
     def start_app(self, app_name: str) -> protocol.Response:
+        """Starts an app
+
+        Args:
+            app_name (str): The app's name
+
+        Returns:
+            app.core.protocol.Response
+
+        Raises:
+            app.core.exceptions.ServerError
+        """
         return self.request('app', 'start', app_name)
 
     def kill_app(self, pid: int) -> protocol.Response:
+        """Kills an app
+
+        Args:
+            pid (int): The app's ID
+
+        Returns:
+            app.core.protocol.Response
+
+        Raises:
+            app.core.exceptions.ServerError
+        """
         return self.request('app', 'kill', str(pid))
 
 
     # ---- Keylogging ----
 
     def keyboard_hook(self) -> protocol.Response:
+        """Starts hooking
+
+        Returns:
+            app.core.protocol.Response
+
+        Raises:
+            app.core.exceptions.ServerError
+        """
         return self.request('keylogging', 'hook', '')
     
     def keyboard_unhook(self) -> protocol.Response:
-        """Returns the keys hooked
+        """Unhooks
+
+        Returns:
+            app.core.protocol.Response: On success return a string of
+            keys hooked previously
+
+        Raises:
+            app.core.exceptions.ServerError
         """
         return self.request('keylogging', 'unhook', '')
 
     def keyboard_lock(self):
+        """Locks the keyboard
+
+        Returns:
+            app.core.protocol.Response
+
+        Raises:
+            app.core.exceptions.ServerError
+        """
         return self.request('keylogging', 'lock', '')
 
     def keyboard_unlock(self):
+        """Unlocks the keyboard
+
+        No effect if the keyboard is not locked already.
+
+        Returns:
+            app.core.protocol.Response
+
+        Raises:
+            app.core.exceptions.ServerError
+        """
         return self.request('keylogging', 'unlock', '')
 
 
@@ -171,7 +264,10 @@ class Portal:
             registry_file (str): The content of the file
 
         Returns:
-            protocol.Response: The response content is empty
+            app.core.protocol.Response
+
+        Raises:
+            app.core.exceptions.ServerError
         """
         return self.request('reg', 'send', registry_file)
 
@@ -182,7 +278,11 @@ class Portal:
             path_to_registry (str): Path to the registry
 
         Returns:
-            protocol.Response: The content is the value of the registry
+            app.core.protocol.Response: On success, returns the value of the
+            registry
+
+        Raises:
+            app.core.exceptions.ServerError
         """
         return self.request('reg', 'get', path_to_registry)
 
@@ -195,7 +295,10 @@ class Portal:
             value_type (str): See `server.packages.reg_manip.set`
 
         Returns:
-            protocol.Response: The response content is empty
+            app.core.protocol.Response
+
+        Raises:
+            app.core.exceptions.ServerError
         """
         d = ','.join([path_to_registry, new_value, value_type])
         return self.request('reg', 'set', d)
@@ -207,7 +310,10 @@ class Portal:
             path_to_registry (str): Path to registry
 
         Returns:
-            protocol.Response: The response content is empty
+            app.core.protocol.Response
+
+        Raises:
+            app.core.exceptions.ServerError
         """
         return self.request('reg', 'delete', path_to_registry)
 
@@ -218,7 +324,10 @@ class Portal:
             key (str): A new key name
 
         Returns:
-            protocol.Response: The response content is empty
+            app.core.protocol.Response
+
+        Raises:
+            app.core.exceptions.ServerError
         """
         return self.request('reg', 'create-key', key)
 
@@ -229,20 +338,47 @@ class Portal:
             path_to_registry (str): Path to registry key
 
         Returns:
-            protocol.Response: The response content is empty
+            app.core.protocol.Response
+
+        Raises:
+            app.core.exceptions.ServerError
         """
         return self.request('reg', 'delete-key', path_to_registry)
     
     
     # ---- Machine ----
 
-    def shutdown_peer(self) -> protocol.Response:
+    def shut_down(self) -> protocol.Response:
+        """Shuts the server down
+
+        Returns:
+            app.core.protocol.Response
+
+        Raises:
+            app.core.exceptions.ServerError
+        """
         return self.request('machine', 'shutdown', '')
 
-    def log_out_peer(self) -> protocol.Response:
+    def log_out(self) -> protocol.Response:
+        """Logs out
+
+        Returns:
+            app.core.protocol.Response
+
+        Raises:
+            app.core.exceptions.ServerError        
+        """
         self.request('machine', 'log-out', '')
 
     def get_mac_address(self) -> protocol.Response:
+        """Gets MAC address
+
+        Returns:
+            app.core.protocol.Response
+
+        Raises:
+            app.core.exceptions.ServerError
+        """
         return self.request('machine', 'mac', '')
 
     # ---- File system ----

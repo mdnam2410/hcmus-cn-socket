@@ -1,3 +1,5 @@
+from app.core.exceptions import SendingError, ReceivingError
+
 import socket
 from typing import Tuple
 
@@ -169,27 +171,40 @@ def send(s: socket.socket, message: Message):
     Args:
         s (socket.socket): A socket object
         message (Message): A message
-    """
-    s.sendall(message.to_bytes())
 
-def receive(s: socket.socket) -> bytes:
+    Raises:
+        app.core.exceptions.SendingError
+    """
+    try:
+        s.sendall(message.to_bytes())
+    except OSError as e:
+        raise SendingError from e
+
+def receive(s: socket.socket, buffer=SOCKET_BUFFER) -> bytes:
     """Receives message from peer using socket `s`
 
     Args:
         s (socket.socket): A socket
+        buffer (int): Default to SOCKET_BUFFER
 
     Returns:
         bytes: The message
+
+    Raises:
+        app.core.exceptions.ReceivingError
     """
-    message = b''
+    message = bytearray()
     while True:
-        temp = s.recv(SOCKET_BUFFER)
-        # TODO: handle the case of closed connection
+        try:
+            temp = s.recv(buffer)
+        except OSError as e:
+            raise ReceivingError from e
+
         if not temp:
-            break
+            raise ReceivingError
         
         message += temp
         # This signals the end of the message
         if temp[-1] == 0:
             break
-    return message
+    return bytes(message)

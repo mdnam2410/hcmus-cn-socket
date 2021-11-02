@@ -1,5 +1,5 @@
-import logging
 import app.core.protocol as protocol
+from app.core.exceptions import ReceivingError, ServerError
 
 import base64
 import cv2
@@ -32,17 +32,20 @@ class ScreenStream:
         wait_thread = threading.Thread(target=t, args=(self,))
         wait_thread.start()
         
-    def is_connected(self):
-        return self.data_socket is not None
-
-    def receive(self):
+    def _receive(self):
         """Receives frames from the server
 
         Returns:
-            str: The content of the message from server
+            bytes: The content of the message from server
+
+        Raises:
+            app.core.exceptions.ReceivingError
         """
         r = protocol.Response.from_bytes(protocol.receive(self.data_socket))
         return r.content()
+
+    def is_connected(self):
+        return self.data_socket is not None
 
     def __iter__(self) -> Tuple[int, int, bytes]:
         """Yields the frames received from server
@@ -54,13 +57,25 @@ class ScreenStream:
             Iterator[Tuple[int, int, bytes]]: A 3-tuple of (w, h, b), where
             w is the frame's width, h is the frame's height, and b is the
             frame's raw bytes (in RBGA mode)
+
+        Raises:
+            app.core.exceptions.ServerError
         """
-        while True:
-            data =  self.receive()
-            w, h, frame = tuple(data.split(b'\n', 2))
-            frame = base64.urlsafe_b64decode(frame)
-            frame = lzma.decompress(frame)
-            yield int(w.decode(protocol.MESSAGE_ENCODING)), int(h.decode(protocol.MESSAGE_ENCODING)), frame
+        try:
+            while True:
+                data =  self._receive()
+                w, h, frame = tuple(data.split(b'\n', 2))
+                w, h = int(w.decode(protocol.MESSAGE_ENCODING)), int(h.decode(protocol.MESSAGE_ENCODING))
+                if (w, h) == (0, 0):
+                    break
+                frame = base64.urlsafe_b64decode(frame)
+                frame = lzma.decompress(frame)
+                yield w, h, frame
+        except ReceivingError:
+            raise ServerError('Stream is broken')
+        finally:
+            self.listen_socket.close()
+            self.data_socket.close()
 
 
 if __name__ == '__main__':
