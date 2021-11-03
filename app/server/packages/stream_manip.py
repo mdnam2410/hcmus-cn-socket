@@ -3,6 +3,7 @@ from app.core.exceptions import SendingError
 
 import base64
 import ctypes
+import io
 import logging
 import lzma
 from mss import mss
@@ -10,10 +11,9 @@ from PIL import Image
 import socket
 import threading
 import time
-from typing import Tuple
 
 class StreamService:
-    BBOX = {
+    SCREEN_BOUNDING_BOX = {
         'top': 0,
         'left': 0,
         'width': ctypes.windll.user32.GetSystemMetrics(0),
@@ -30,8 +30,8 @@ class StreamService:
 
         self.is_streaming = False
         self.stop_signal = False
-        self.SLEEP_BETWEEN_FRAMES = 0.2
-        self.FRAME_SIZE = (480, 360)
+        self.SLEEP_BETWEEN_FRAMES = 1/20
+        self.FRAME_SIZE = (720, 480)
 
     def is_running(self):
         return self.stream_socket is not None
@@ -46,44 +46,47 @@ class StreamService:
             self.stream_socket = None
             return False
 
-    def capture_frame(self) -> Tuple[int, int, bytes]:
+    def capture_frame(self) -> bytes:
         """Captures one screenshot frame
 
         Returns:
-            tuple: A 3-tuple of image's width, height, and raw
-            bytes (in RBGA mode)
+            bytes: The frame in JPEG format
         """
         with mss() as s:
-            screenshot = s.grab(self.BBOX)
-            logging.debug('Captured frame')
+            logging.debug('Capturing frame')
+            screenshot = s.grab(self.SCREEN_BOUNDING_BOX)
             img = Image.frombytes(
-                mode='RGBA',
+                mode='RGB',
                 size=(screenshot.width, screenshot.height),
-                data=screenshot.bgra,
+                data=screenshot.rgb,
             )
+
+            logging.debug('Resizing frame')
             img = img.resize(size=self.FRAME_SIZE, resample=Image.ANTIALIAS)
-            logging.debug('Resized frame')
-            return img.width, img.height, lzma.compress(img.tobytes())
+
+            logging.debug('Saving frame to JPEG format')
+            jpg = io.BytesIO()
+            img.save(jpg, format='jpeg', quality=95)
+            return jpg.getvalue()
 
     def send_frame(self):
         """Sends one screenshot frame to peer
         """
 
-        status_code = 0
-        data = b''
+        status_code = protocol.SC_OK
+        data = self.capture_frame()
+        
+        logging.debug('Compressing frame using LZMA')
+        data = lzma.compress(data)
+        logging.debug(f'Encoding frame using base64')
+        data = base64.urlsafe_b64encode(data)
 
-        w, h, frame = self.capture_frame()
-        b64encoded = base64.urlsafe_b64encode(frame)
-        logging.debug(f'Encoded frame using base64, frame size {len(b64encoded)}')
-        data = b'\n'.join(
-            [str(w).encode(protocol.MESSAGE_ENCODING), str(h).encode(protocol.MESSAGE_ENCODING), b64encoded]
-        )
-
+        logging.debug(f'Sending frame with size {len(data)} bytes')
         response = protocol.Response(status_code, data)
         protocol.send(self.stream_socket, response)
 
     def send_terminate_frame(self):
-        data = b'0\n0\n'
+        data = b''
         protocol.send(self.stream_socket, protocol.Response(protocol.SC_OK, data))
 
     def start(self):
@@ -93,18 +96,23 @@ class StreamService:
         def stream():
             i = 0
             try:
+                logging.debug('Starting streaming')
                 while not self.stop_signal:
                     while self.is_streaming:
+                        logging.debug(f'Sending frame {i}...')
                         self.send_frame()
-                        logging.debug(f'Sent frame {i}...')
                         i += 1
+                        logging.debug(f'Sleeping for {self.SLEEP_BETWEEN_FRAMES} second(s)')
                         time.sleep(self.SLEEP_BETWEEN_FRAMES)
-                        logging.debug(f'Slept for {self.SLEEP_BETWEEN_FRAMES} second(s)')
+                
+                logging.debug('Received stop signal, sending terminate frame...')
                 self.send_terminate_frame()
-                self.stream_socket.close()
             except SendingError:
-                self.stream_socket.close()
+                logging.debug('Error occured when sending frame, closing stream...')
+                self.stop_signal = False
+                self.is_streaming = False
             finally:
+                self.stream_socket.close()
                 self.stream_socket = None
 
         stream_thread = threading.Thread(target=stream)
@@ -130,3 +138,4 @@ class StreamService:
             if self.is_running():
                 self.stream_socket.close()
                 self.stream_socket = None
+        self.stop_signal = False

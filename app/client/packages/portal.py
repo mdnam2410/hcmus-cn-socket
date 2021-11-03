@@ -47,7 +47,7 @@ class Portal:
 
         Returns:
             app.core.protocol.Response:
-                On success, return the base64-encoded image
+                On success, return the base64-encoded, JPEG-format image
 
         Raises:
             app.core.exceptions.ServerError
