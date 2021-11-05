@@ -1,0 +1,639 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>887</width>
+    <height>769</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>image/16/logo.png</normaloff>image/16/logo.png</iconset>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QPushButton" name="pushButton">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>310</x>
+      <y>10</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Connect</string>
+    </property>
+    <property name="icon">
+     <iconset>
+      <normaloff>image/16/power.png</normaloff>image/16/power.png</iconset>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_2">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>390</x>
+      <y>10</y>
+      <width>91</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Disconnect</string>
+    </property>
+    <property name="icon">
+     <iconset>
+      <normaloff>image/16/shutdown.png</normaloff>image/16/shutdown.png</iconset>
+    </property>
+   </widget>
+   <widget class="QGraphicsView" name="graphicsView">
+    <property name="geometry">
+     <rect>
+      <x>490</x>
+      <y>30</y>
+      <width>381</width>
+      <height>291</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="geometry">
+     <rect>
+      <x>490</x>
+      <y>10</y>
+      <width>91</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Screen of server</string>
+    </property>
+   </widget>
+   <widget class="QSplitter" name="splitter_3">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>40</y>
+      <width>471</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>MAC Address</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit_3">
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+     <property name="placeholderText">
+      <string>Read only</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QListView" name="listView">
+    <property name="geometry">
+     <rect>
+      <x>490</x>
+      <y>400</y>
+      <width>381</width>
+      <height>321</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_5">
+    <property name="geometry">
+     <rect>
+      <x>490</x>
+      <y>370</y>
+      <width>91</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Log action</string>
+    </property>
+   </widget>
+   <widget class="QScrollBar" name="verticalScrollBar">
+    <property name="geometry">
+     <rect>
+      <x>860</x>
+      <y>400</y>
+      <width>16</width>
+      <height>321</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Vertical</enum>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_3">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>490</x>
+      <y>340</y>
+      <width>101</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Screenshot</string>
+    </property>
+    <property name="icon">
+     <iconset>
+      <normaloff>image/16/screenshot.png</normaloff>image/16/screenshot.png</iconset>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_4">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>600</x>
+      <y>340</y>
+      <width>101</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Screenshot</string>
+    </property>
+    <property name="icon">
+     <iconset>
+      <normaloff>image/16/recording.png</normaloff>image/16/recording.png</iconset>
+    </property>
+   </widget>
+   <widget class="QTreeView" name="treeView">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>90</y>
+      <width>471</width>
+      <height>631</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_6">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>70</y>
+      <width>91</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>File view</string>
+    </property>
+   </widget>
+   <widget class="QSplitter" name="splitter">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>141</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string/>
+     </property>
+     <property name="pixmap">
+      <pixmap>image/16/computer.png</pixmap>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit">
+     <property name="placeholderText">
+      <string>127.0.0.1</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QSplitter" name="splitter_2">
+    <property name="geometry">
+     <rect>
+      <x>156</x>
+      <y>10</y>
+      <width>150</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Port</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit_2">
+     <property name="placeholderText">
+      <string>9890</string>
+     </property>
+    </widget>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>887</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuNew">
+    <property name="title">
+     <string>New</string>
+    </property>
+    <addaction name="actionConfig"/>
+    <addaction name="actionConnect"/>
+    <addaction name="actionDisconnect"/>
+   </widget>
+   <widget class="QMenu" name="menuScreen">
+    <property name="title">
+     <string>Screen</string>
+    </property>
+    <widget class="QMenu" name="menuScreenshot">
+     <property name="title">
+      <string>Screenshot</string>
+     </property>
+     <property name="icon">
+      <iconset>
+       <normaloff>image/16/screenshot.png</normaloff>image/16/screenshot.png</iconset>
+     </property>
+     <addaction name="actionTake"/>
+     <addaction name="actionSave"/>
+    </widget>
+    <widget class="QMenu" name="menuSharescreen">
+     <property name="title">
+      <string>Sharescreen</string>
+     </property>
+     <property name="icon">
+      <iconset>
+       <normaloff>image/16/screenshare.png</normaloff>image/16/screenshare.png</iconset>
+     </property>
+     <addaction name="actionTaek"/>
+     <addaction name="actionRecord"/>
+    </widget>
+    <addaction name="menuScreenshot"/>
+    <addaction name="menuSharescreen"/>
+    <addaction name="actionConfiguration"/>
+   </widget>
+   <widget class="QMenu" name="menuProcess_App">
+    <property name="title">
+     <string>Process/ App</string>
+    </property>
+    <addaction name="actionStart"/>
+    <addaction name="actionStart_3"/>
+    <addaction name="actionKill"/>
+   </widget>
+   <widget class="QMenu" name="menuRegistry">
+    <property name="title">
+     <string>Registry</string>
+    </property>
+    <addaction name="actionStart_2"/>
+   </widget>
+   <widget class="QMenu" name="menuPower">
+    <property name="title">
+     <string>Power</string>
+    </property>
+    <addaction name="actionShut_down"/>
+    <addaction name="actionLogout"/>
+    <addaction name="actionRestart"/>
+    <addaction name="actionSleep"/>
+   </widget>
+   <widget class="QMenu" name="menuKeyboard">
+    <property name="title">
+     <string>Keyboard</string>
+    </property>
+    <widget class="QMenu" name="menuHook_Unhook">
+     <property name="title">
+      <string>Lock/Unlock</string>
+     </property>
+     <property name="icon">
+      <iconset>
+       <normaloff>image/16/lock.png</normaloff>image/16/lock.png</iconset>
+     </property>
+     <addaction name="actionLock"/>
+     <addaction name="actionUnlock"/>
+    </widget>
+    <widget class="QMenu" name="menuHook_Unhook_2">
+     <property name="title">
+      <string>Hook/Unhook</string>
+     </property>
+     <property name="icon">
+      <iconset>
+       <normaloff>image/16/hook.png</normaloff>image/16/hook.png</iconset>
+     </property>
+     <addaction name="actionHook_2"/>
+     <addaction name="actionUnhook"/>
+    </widget>
+    <addaction name="menuHook_Unhook_2"/>
+    <addaction name="menuHook_Unhook"/>
+    <addaction name="actionPrint"/>
+   </widget>
+   <widget class="QMenu" name="menuFile_Control">
+    <property name="title">
+     <string>File Control</string>
+    </property>
+    <addaction name="actionView"/>
+    <addaction name="actionSend"/>
+    <addaction name="actionRemove"/>
+   </widget>
+   <widget class="QMenu" name="menuAbout">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionAbou"/>
+   </widget>
+   <addaction name="menuNew"/>
+   <addaction name="menuScreen"/>
+   <addaction name="menuProcess_App"/>
+   <addaction name="menuRegistry"/>
+   <addaction name="menuKeyboard"/>
+   <addaction name="menuFile_Control"/>
+   <addaction name="menuPower"/>
+   <addaction name="menuAbout"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionConfig">
+   <property name="icon">
+    <iconset>
+     <normaloff>image/16/configuration.png</normaloff>image/16/configuration.png</iconset>
+   </property>
+   <property name="text">
+    <string>Configuration</string>
+   </property>
+  </action>
+  <action name="actionConnect">
+   <property name="icon">
+    <iconset>
+     <normaloff>image/16/power.png</normaloff>image/16/power.png</iconset>
+   </property>
+   <property name="text">
+    <string>Connect</string>
+   </property>
+  </action>
+  <action name="actionDisconnect">
+   <property name="icon">
+    <iconset>
+     <normaloff>image/16/shutdown.png</normaloff>image/16/shutdown.png</iconset>
+   </property>
+   <property name="text">
+    <string>Disconnect</string>
+   </property>
+  </action>
+  <action name="actionShut_down">
+   <property name="icon">
+    <iconset>
+     <normaloff>image/16/shutdown.png</normaloff>image/16/shutdown.png</iconset>
+   </property>
+   <property name="text">
+    <string>Shut down</string>
+   </property>
+  </action>
+  <action name="actionRestart">
+   <property name="icon">
+    <iconset>
+     <normaloff>image/16/restart.png</normaloff>image/16/restart.png</iconset>
+   </property>
+   <property name="text">
+    <string>Restart</string>
+   </property>
+  </action>
+  <action name="actionSleep">
+   <property name="icon">
+    <iconset>
+     <normaloff>image/16/sleep.png</normaloff>image/16/sleep.png</iconset>
+   </property>
+   <property name="text">
+    <string>Sleep</string>
+   </property>
+  </action>
+  <action name="actionLogout">
+   <property name="icon">
+    <iconset>
+     <normaloff>image/16/logout.png</normaloff>image/16/logout.png</iconset>
+   </property>
+   <property name="text">
+    <string>Logout</string>
+   </property>
+  </action>
+  <action name="actionPrint">
+   <property name="icon">
+    <iconset>
+     <normaloff>image/16/view.png</normaloff>image/16/view.png</iconset>
+   </property>
+   <property name="text">
+    <string>Print</string>
+   </property>
+  </action>
+  <action name="actionLock">
+   <property name="icon">
+    <iconset>
+     <normaloff>image/16/lock.png</normaloff>image/16/lock.png</iconset>
+   </property>
+   <property name="text">
+    <string>Lock</string>
+   </property>
+  </action>
+  <action name="actionUnlock">
+   <property name="icon">
+    <iconset>
+     <normaloff>image/16/unlock.png</normaloff>image/16/unlock.png</iconset>
+   </property>
+   <property name="text">
+    <string>Unlock</string>
+   </property>
+  </action>
+  <action name="actionHook_2">
+   <property name="icon">
+    <iconset>
+     <normaloff>image/16/hook.png</normaloff>image/16/hook.png</iconset>
+   </property>
+   <property name="text">
+    <string>Hook</string>
+   </property>
+  </action>
+  <action name="actionUnhook">
+   <property name="icon">
+    <iconset>
+     <normaloff>image/16/unhook.png</normaloff>image/16/unhook.png</iconset>
+   </property>
+   <property name="text">
+    <string>Unhook</string>
+   </property>
+  </action>
+  <action name="actionDocument">
+   <property name="text">
+    <string>Document</string>
+   </property>
+  </action>
+  <action name="actionGithub_com">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
+  <action name="actionIP">
+   <property name="icon">
+    <iconset>
+     <normaloff>image/16/ip.png</normaloff>image/16/ip.png</iconset>
+   </property>
+   <property name="text">
+    <string>IP</string>
+   </property>
+  </action>
+  <action name="actionMAC">
+   <property name="icon">
+    <iconset>
+     <normaloff>image/16/MAC.png</normaloff>image/16/MAC.png</iconset>
+   </property>
+   <property name="text">
+    <string>MAC</string>
+   </property>
+  </action>
+  <action name="actionTake">
+   <property name="icon">
+    <iconset>
+     <normaloff>image/16/screenshot.png</normaloff>image/16/screenshot.png</iconset>
+   </property>
+   <property name="text">
+    <string>Take</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="icon">
+    <iconset>
+     <normaloff>image/16/save.png</normaloff>image/16/save.png</iconset>
+   </property>
+   <property name="text">
+    <string>Save</string>
+   </property>
+  </action>
+  <action name="actionTaek">
+   <property name="icon">
+    <iconset>
+     <normaloff>image/16/screenshare.png</normaloff>image/16/screenshare.png</iconset>
+   </property>
+   <property name="text">
+    <string>Take</string>
+   </property>
+  </action>
+  <action name="actionRecord">
+   <property name="icon">
+    <iconset>
+     <normaloff>image/16/recording.png</normaloff>image/16/recording.png</iconset>
+   </property>
+   <property name="text">
+    <string>Record</string>
+   </property>
+  </action>
+  <action name="actionConfiguration">
+   <property name="icon">
+    <iconset>
+     <normaloff>image/16/configuration.png</normaloff>image/16/configuration.png</iconset>
+   </property>
+   <property name="text">
+    <string>Configuration</string>
+   </property>
+  </action>
+  <action name="actionStart">
+   <property name="icon">
+    <iconset>
+     <normaloff>image/16/view.png</normaloff>image/16/view.png</iconset>
+   </property>
+   <property name="text">
+    <string>Show</string>
+   </property>
+  </action>
+  <action name="actionStart_2">
+   <property name="icon">
+    <iconset>
+     <normaloff>image/16/kill.png</normaloff>image/16/kill.png</iconset>
+   </property>
+   <property name="text">
+    <string>Start</string>
+   </property>
+  </action>
+  <action name="actionView">
+   <property name="icon">
+    <iconset>
+     <normaloff>image/16/search.png</normaloff>image/16/search.png</iconset>
+   </property>
+   <property name="text">
+    <string>View</string>
+   </property>
+  </action>
+  <action name="actionSend">
+   <property name="icon">
+    <iconset>
+     <normaloff>image/16/send.png</normaloff>image/16/send.png</iconset>
+   </property>
+   <property name="text">
+    <string>Send</string>
+   </property>
+  </action>
+  <action name="actionRemove">
+   <property name="icon">
+    <iconset>
+     <normaloff>image/16/remove.png</normaloff>image/16/remove.png</iconset>
+   </property>
+   <property name="text">
+    <string>Remove</string>
+   </property>
+  </action>
+  <action name="actionStart_3">
+   <property name="icon">
+    <iconset>
+     <normaloff>image/16/start.png</normaloff>image/16/start.png</iconset>
+   </property>
+   <property name="text">
+    <string>Start</string>
+   </property>
+  </action>
+  <action name="actionKill">
+   <property name="icon">
+    <iconset>
+     <normaloff>image/16/kill.png</normaloff>image/16/kill.png</iconset>
+   </property>
+   <property name="text">
+    <string>Kill</string>
+   </property>
+  </action>
+  <action name="actionAbou">
+   <property name="icon">
+    <iconset>
+     <normaloff>image/16/about.png</normaloff>image/16/about.png</iconset>
+   </property>
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
