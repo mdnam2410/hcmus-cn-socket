@@ -65,7 +65,8 @@ Scope | Command | Option | Data | Description
 -------- | ------- | ------ | ---- | -----------
 Screenshot | `screenshot` | `<none>` | `<none>` | Require a screenshot (in JPG (PNG?) format)
 Screen live streaming | `stream` | `<none>` | `<none>` | Request for screen streaming
-Screen live streaming | `stream` | `start` | `<none>` | Start/Restart streaming
+Screen live streaming | `stream` | `start` | `<none>` | Start streaming
+Screen live streaming | `stream` | `restart` | `<none>` | Restart streaming
 Screen live streaming | `stream` | `pause` | `<none>` | Pause streaming
 Screen live streaming | `stream` | `stop` | `<none>` | Stop streaming
 Running Processes | `process` | `list` | `<none>` | Require a list of processes

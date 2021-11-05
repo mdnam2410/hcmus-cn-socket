@@ -1,18 +1,27 @@
 import base64
+import ctypes
 import io
-import pyautogui
+from mss import mss
+from PIL import Image
 
-def take_screenshot() -> str:
+def take_screenshot() -> bytes:
     """Takes a screenshot
 
     Returns:
-        str: A base64-encoded string
+        bytes: A base64-encoded, JPEG-format image
     """
-    img = pyautogui.screenshot()
-    b = io.BytesIO()
-    img.save(b, format='PNG')
-    return base64.b64encode(b.getvalue()).decode('utf-8')
-
-def video_stream() -> str:
-    # TODO: implements video stream protocol
-    pass
+    bbox = {
+        'top': 0,
+        'left': 0,
+        'width': ctypes.windll.user32.GetSystemMetrics(0),
+        'height': ctypes.windll.user32.GetSystemMetrics(1),
+    }
+    screenshot = mss().grab(bbox)
+    img = Image.frombytes(
+        mode='RGB',
+        size=(screenshot.width, screenshot.height),
+        data=screenshot.rgb
+    )
+    jpeg = io.BytesIO()
+    img.save(jpeg, format='JPEG', quality=95)
+    return base64.urlsafe_b64encode(jpeg.getvalue())

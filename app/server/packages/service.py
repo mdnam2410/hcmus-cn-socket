@@ -1,11 +1,16 @@
+from app.core.exceptions import ReceivingError, SendingError
 import app.core.protocol as protocol
 import app.server.packages.keyboard_manip as keyboard_manip
 import app.server.packages.machine_manip as machine_manip
 import app.server.packages.process_manip as process_manip
 import app.server.packages.reg_manip as reg_manip
 import app.server.packages.screen_manip as screen_manip
+from app.server.packages.stream_manip import StreamService
 
 import socket
+import logging
+
+logging.basicConfig(format='%(asctime)s: %(message)s', level=logging.DEBUG)
 
 class Service:
     """A wrapper for server class, can listen to client connection, and serve the
@@ -22,12 +27,15 @@ class Service:
 
         self.request_functions_dict = {
             'screenshot': self._request_screenshot,
+            'stream': self._request_stream,
             'process': self._request_process,
             'app': self._request_app,
             'keylogging': self._request_keylogging,
             'reg': self._request_registry,
             'machine': self._request_machine,
         }
+
+        self.stream_service = StreamService()
 
     def start(self):
         """Starts listening for connection
@@ -39,32 +47,56 @@ class Service:
         """
 
         # self.listen_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        logging.debug(f'Creating listening socket')
         self.listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.listen_socket.bind((self.addr, self.port))
         self.listen_socket.listen()
-        print('Service created listening socket', self.listen_socket.getsockname())
 
-        while not self.close_signal:
-            self.client_socket, add = self.listen_socket.accept()
-            print('Service connected to client at', add, 'using socket', self.client_socket.getsockname())
+        while True:
+            self.client_socket, _ = self.listen_socket.accept()
+            if self.close_signal:
+                break
+            logging.debug(f'Connected to client {self.client_socket.getpeername()}, using socket {self.client_socket.getsockname()}')
             self.serve()
+        
+        self.listen_socket.close()
+        self.listen_socket = None
         self.close_signal = False
 
     def stop(self):
         """Stops the client connection, and stops the service
         """
-        self.stop_client_connection()
-
-        if self.listen_socket is not None:
-            self.listen_socket.close()
         self.close_signal = True
+        if self.is_connected_to_client():
+            self.stop_client_connection()
+        socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((self.addr, self.port))
+        # if self.listen_socket is not None:
+        #     self.listen_socket.close()
+        # self.listen_socket = None
+
+    def clean_up(self):
+        logging.debug('Clearing hook history')
+        keyboard_manip.keylogger.clear_history()
+        logging.debug('Unlocking keyboard')
+        keyboard_manip.keylogger.unlock()
+        if self.stream_service.is_running():
+            logging.debug('Stopping streaming service')
+            self.stream_service.stop()
 
     def stop_client_connection(self):
         """Stops the current client connection only, does not stop the service
         """
+        logging.debug('Stopping client connection')
         if self.client_socket is not None:
+            logging.debug('Closing client socket')
             self.client_socket.close()
-            self.client_socket = None
+        self.client_socket = None
+
+    def is_alive(self):
+        return self.listen_socket is not None
+
+    def is_connected_to_client(self):
+        return self.client_socket is not None
 
     def serve(self):
         """Receives requests from `self.client_socket`, does the request
@@ -73,16 +105,21 @@ class Service:
         The method will not return until the connection is closed, either
         by the client or by the server.
         """
-        while True:
-            r = protocol.receive(self.client_socket)
-            if not r:
-                self.stop_client_connection()
-                break
+        try:
+            while True:
+                r = protocol.receive(self.client_socket)
 
-            request = protocol.Request.from_bytes(r)
-            response = self.do_request(request)
-            # response = protocol.Response(0, '')
-            protocol.send(self.client_socket, response)
+                request = protocol.Request.from_bytes(r)
+                logging.debug(f'Doing request: {request.command()} {request.option()}')
+
+                response = self.do_request(request)
+                logging.debug(f'Sending response: {response.status_code()} {response.status_message()}')
+                protocol.send(self.client_socket, response)
+        except (SendingError, ReceivingError):
+            logging.debug('Communicating error')
+        finally:
+            self.stop_client_connection()
+            self.clean_up()
 
     def do_request(self, request: protocol.Request) -> protocol.Response:
         if request.command() not in self.request_functions_dict:
@@ -91,6 +128,37 @@ class Service:
 
     def _request_screenshot(self, option, content) -> protocol.Response:
         return protocol.Response(protocol.SC_OK, screen_manip.take_screenshot())
+
+    def _request_stream(self, option, content) -> protocol.Response:
+        status_code = protocol.SC_OK
+        data = ''
+
+        if option == '':
+            if not self.stream_service.is_running():
+                logging.debug('Stream service is not running, initializing...')
+                if not self.stream_service.connect_to_peer(self.client_socket.getpeername()[0]):
+                    logging.debug('Unable to stream')
+                    status_code = protocol.SC_ERROR_UNKNOWN
+            else:
+                status_code = protocol.SC_ERROR_UNKNOWN
+        elif self.stream_service.is_running():
+            if option == 'start':
+                logging.debug('Starting streaming...')
+                self.stream_service.start()
+            elif option == 'restart':
+                logging.debug('Restarting streaming...')
+                self.stream_service.restart()
+            elif option == 'pause':
+                logging.debug('Pausing streaming...')
+                self.stream_service.pause()
+            elif option == 'stop':
+                logging.debug('Stopping streaming...')
+                self.stream_service.stop()
+        else:
+            logging.debug('Stream service is not running')
+            status_code = protocol.SC_ERROR_UNKNOWN
+
+        return protocol.Response(status_code, data.encode(protocol.MESSAGE_ENCODING))
 
     def _request_process(self, option, content):
         status_code = protocol.SC_OK
@@ -107,7 +175,7 @@ class Service:
                           else protocol.SC_PROCESS_KILL_REQUEST_IS_DENIED if q == 2 \
                           else protocol.SC_PROCESS_CANNOT_KILL
 
-        return protocol.Response(status_code, data)
+        return protocol.Response(status_code, data.encode(protocol.MESSAGE_ENCODING))
 
     def _request_app(self, option, content) -> protocol.Response:
         status_code = protocol.SC_OK
@@ -124,7 +192,7 @@ class Service:
                           else protocol.SC_APP_KILL_REQUEST_IS_DENIED if q == 2 \
                           else protocol.SC_APP_CANNOT_KILL
 
-        return protocol.Response(status_code, data)
+        return protocol.Response(status_code, data.encode(protocol.MESSAGE_ENCODING))
 
     def _request_keylogging(self, option, content) -> protocol.Response:
         status_code = protocol.SC_OK
@@ -134,8 +202,12 @@ class Service:
             keyboard_manip.keylogger.hook()
         elif option == 'unhook':
             data = keyboard_manip.keylogger.unhook()
+        elif option == 'lock':
+            keyboard_manip.keylogger.lock()
+        elif option == 'unlock':
+            keyboard_manip.keylogger.unlock()
         
-        return protocol.Response(status_code, data)
+        return protocol.Response(status_code, data.encode(protocol.MESSAGE_ENCODING))
 
     def _request_registry(self, option, content) -> protocol.Response:
         status_code = protocol.SC_OK
@@ -165,7 +237,7 @@ class Service:
                 if not reg_manip.delete_key(key):
                     status_code = protocol.SC_ERROR_UNKNOWN
 
-        return protocol.Response(status_code, data)
+        return protocol.Response(status_code, data.encode(protocol.MESSAGE_ENCODING))
 
     def _request_machine(self, option, content) -> protocol.Response:
         status_code = protocol.SC_OK
@@ -174,20 +246,10 @@ class Service:
         if option == 'shutdown':
             if not machine_manip.shutdown():
                 status_code = protocol.SC_MACHINE_CANNOT_SHUTDOWN
-        
-        return protocol.Response(status_code, data)
-
-if __name__ == '__main__':
-    # Create a service object
-    service = Service()
-
-    # The service will start listening and accepting connections
-    # Call this function in a different thread than the GUI thread 
-    # because this function will go into an infinite loop to serve the client.
-    service.start()
-
-    # Stop the service
-    service.stop()
-
-    # Stop the client connection only
-    service.stop_client_connection()
+        elif option == 'mac':
+            m = machine_manip.get_mac()
+            if m is None:
+                status_code = protocol.SC_MACHINE_CANNOT_GET_MAC
+            else:
+                data = m
+        return protocol.Response(status_code, data.encode(protocol.MESSAGE_ENCODING))
