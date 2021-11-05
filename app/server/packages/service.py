@@ -252,4 +252,7 @@ class Service:
                 status_code = protocol.SC_MACHINE_CANNOT_GET_MAC
             else:
                 data = m
+        elif option == 'log-out':
+            if not machine_manip.logout():
+                status_code = protocol.SC_MACHINE_CANNOT_LOGOUT
         return protocol.Response(status_code, data.encode(protocol.MESSAGE_ENCODING))
