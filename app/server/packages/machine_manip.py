@@ -6,7 +6,9 @@ def shutdown(after=5):
     args = ['shutdown', '/s', '/t', str(after)]
     return os.system(' '.join(args)) == 0
 
-# TODO: define logout function
+def logout():
+    args = ['shutdown', '/l']
+    return os.system(' '.join(args)) == 0
 
 def get_mac() -> str:
     """Gets MAC address, based on the IP address returned by socket
