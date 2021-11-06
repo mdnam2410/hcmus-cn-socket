@@ -10,6 +10,14 @@ def logout():
     args = ['shutdown', '/l']
     return os.system(' '.join(args)) == 0
 
+def sleep():
+    args = ['rundll32.exe powrprof.dll, SetSuspendState Sleep']
+    return os.system(' '.join(args)) == 0
+
+def restart():
+    args = ['shutdown', '/r']
+    return os.system(' '.join(args)) == 0
+
 def get_mac() -> str:
     """Gets MAC address, based on the IP address returned by socket
 

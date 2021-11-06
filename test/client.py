@@ -45,6 +45,12 @@ if __name__ == '__main__':
         elif c == 'shutdown':
             r = p.shut_down()
             print(r.status_message())
+        elif c == "sleep":
+            r = p.sleep()
+            print(r.status_message())
+        elif c == "restart":
+            r = p.restart()
+            print(r.status_message())
         elif c == 'keyboard':
             while True:
                 o = input('[hook|unhook|lock|unlock|exit]: ')

