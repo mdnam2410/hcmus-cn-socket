@@ -1,19 +1,5 @@
-import io
 import os
 import subprocess
-
-"""Test file"""
-
-def header_indices(header):
-    """Helper function, returns the starting indices of the column names"""
-
-    for i in range(0, len(header)):
-        if header[i] == 'P':
-            p = i
-        if header[i] == 'T':
-            t = i
-            break
-    return (0, p, t)
 
 def _get_process():
     s = os.popen('wmic process get processid, threadcount, description').read()

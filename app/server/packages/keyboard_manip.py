@@ -41,5 +41,4 @@ class Keylogger:
     def unlock(self):
         keyboard.unhook_all()
 
-# TODO: clear keylogging history when client disconnects before calling unhook
 keylogger = Keylogger()
