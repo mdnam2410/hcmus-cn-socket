@@ -18,15 +18,9 @@ class ServerWindow(ui.Windows):
         self.service = service.Service()
         layout = QVBoxLayout()
 
-        self.start_btn = QPushButton("Start server")
-        self.start_btn.clicked.connect(self.start)
-
-        self.stop_btn = QPushButton("Stop client")
-        self.stop_btn.clicked.connect(self.stop)
-        self.stop_btn.hide()
-
-        layout.addWidget(self.start_btn)
-        layout.addWidget(self.stop_btn)
+        self.control_btn = QPushButton("Start server")
+        self.control_btn.clicked.connect(self.start)
+        layout.addWidget(self.control_btn)
         
         self.setLayout(layout)
         self.setWindowTitle("Server")
@@ -34,23 +28,26 @@ class ServerWindow(ui.Windows):
 
     def start(self):
         print("Start")
-        self.start_btn.hide()
-        self.stop_btn.show()
-        self.mainThread = threading.Thread(target=self.service.start)
-        self.mainThread.start()
+        self.control_btn.setText("Disconnect client")
+        self.control_btn.clicked.disconnect(self.start)
+        self.control_btn.clicked.connect(self.stop)
+        def target():
+            self.service.start()
+        self.service_thread = threading.Thread(target=target)
+        self.service_thread.start()
         pass
 
-    # bug here
-    # when stop it thread still open and however socket still open :)
     def stop(self):
         print("Stop")
-        self.start_btn.show()
-        self.stop_btn.hide()
         self.service.stop()
+        self.control_btn.setText("Start server")
+        self.control_btn.clicked.disconnect(self.stop)
+        self.control_btn.clicked.connect(self.start)
         pass
 
     def clean2exit(self):
-        self.service.stop()
+        if self.service.is_alive():
+            self.service.stop()
         return super().clean2exit()
 
 if __name__=="__main__":
