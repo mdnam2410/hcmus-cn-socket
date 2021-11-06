@@ -127,7 +127,11 @@ class Service:
         return self.request_functions_dict[request.command()](request.option(), request.content())
 
     def _request_screenshot(self, option, content) -> protocol.Response:
-        return protocol.Response(protocol.SC_OK, screen_manip.take_screenshot())
+        data = screen_manip.take_screenshot()
+        status_code = protocol.protocol.SC_SCREENSHOT_CANNOT_TAKE \
+                      if data is None \
+                      else protocol.SC_OK
+        return protocol.Response(status_code, screen_manip.take_screenshot())
 
     def _request_stream(self, option, content) -> protocol.Response:
         status_code = protocol.SC_OK
@@ -138,9 +142,9 @@ class Service:
                 logging.debug('Stream service is not running, initializing...')
                 if not self.stream_service.connect_to_peer(self.client_socket.getpeername()[0]):
                     logging.debug('Unable to stream')
-                    status_code = protocol.SC_ERROR_UNKNOWN
+                    status_code = protocol.SC_STREAM_CANNOT_INITIALIZE
             else:
-                status_code = protocol.SC_ERROR_UNKNOWN
+                status_code = protocol.SC_STREAM_SERVICE_ALREADY_INITIALIZED
         elif self.stream_service.is_running():
             if option == 'start':
                 logging.debug('Starting streaming...')
@@ -156,7 +160,7 @@ class Service:
                 self.stream_service.stop()
         else:
             logging.debug('Stream service is not running')
-            status_code = protocol.SC_ERROR_UNKNOWN
+            status_code = protocol.SC_STREAM_IS_NOT_RUNNING
 
         return protocol.Response(status_code, data.encode(protocol.MESSAGE_ENCODING))
 
@@ -215,27 +219,27 @@ class Service:
 
         if option == 'send':
             if not reg_manip.import_file(content):
-                status_code = protocol.SC_ERROR_UNKNOWN
+                status_code = protocol.SC_REGISTRY_CANNOT_IMPORT_FILE
         else:
             key, value, type, d = tuple(content.split(',', 3))
             if option == 'get':
                 result = reg_manip.get(key, value)
                 if not result:
-                    status_code = protocol.SC_ERROR_UNKNOWN
+                    status_code = protocol.SC_REGISTRY_CANNOT_GET_VALUE
                 else:
                     data = result
             elif option == 'set':
                 if not reg_manip.set(key, value, type, d):
-                    status_code = protocol.SC_ERROR_UNKNOWN
+                    status_code = protocol.SC_REGISTRY_CANNOT_SET_VALUE
             elif option == 'delete':
                 if not reg_manip.delete(key, value):
-                    status_code = protocol.SC_ERROR_UNKNOWN
+                    status_code = protocol.SC_REGISTRY_CANNOT_DELETE_VALUE
             elif option == 'create-key':
                 if not reg_manip.create_key(key):
-                    status_code = protocol.SC_ERROR_UNKNOWN
+                    status_code = protocol.SC_REGISTRY_CANNOT_CREATE_KEY
             elif option == 'delete-key':
                 if not reg_manip.delete_key(key):
-                    status_code = protocol.SC_ERROR_UNKNOWN
+                    status_code = protocol.SC_REGISTRY_CANNOT_DELETE_KEY
 
         return protocol.Response(status_code, data.encode(protocol.MESSAGE_ENCODING))
 
