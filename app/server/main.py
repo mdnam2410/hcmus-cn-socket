@@ -19,30 +19,34 @@ class ServerWindow(ui.Windows):
         layout = QVBoxLayout()
 
         self.start_btn = QPushButton("Start server")
-        # chưa tạo được icon connect
-        self.start_btn.setGeometry(0, 0, 100, 50)
-        self.start_btn.setIcon(QIcon("ui/image/15/start.png"))
         self.start_btn.clicked.connect(self.start)
-        #ui.loadIcon(start_btn, 'SP_MediaPlay')
+
+        self.stop_btn = QPushButton("Stop client")
+        self.stop_btn.clicked.connect(self.stop)
+        self.stop_btn.hide()
+
         layout.addWidget(self.start_btn)
+        layout.addWidget(self.stop_btn)
         
         self.setLayout(layout)
         self.setWindowTitle("Server")
         ui.loadIcon(self, 'SP_VistaShield')
 
     def start(self):
-        self.start_btn.setText("Disconnect client")
-        self.start_btn.clicked.connect(self.stop)
+        print("Start")
+        self.start_btn.hide()
+        self.stop_btn.show()
         self.mainThread = threading.Thread(target=self.service.start)
         self.mainThread.start()
         pass
 
     # bug here
     # when stop it thread still open and however socket still open :)
-    def stop(self, event):
-        self.service.stop_client_connection()
-        self.start_btn.setText("Start server")
-        self.start_btn.clicked.connect(self.start)
+    def stop(self):
+        print("Stop")
+        self.start_btn.show()
+        self.stop_btn.hide()
+        self.service.stop()
         pass
 
     def clean2exit(self):
