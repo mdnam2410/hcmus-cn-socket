@@ -18,7 +18,7 @@
     <normaloff>image/16/logo.png</normaloff>image/16/logo.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QPushButton" name="connect_btn">
     <property name="enabled">
      <bool>true</bool>
     </property>
@@ -38,7 +38,7 @@
       <normaloff>image/16/power.png</normaloff>image/16/power.png</iconset>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton_2">
+   <widget class="QPushButton" name="disconnect_btn">
     <property name="enabled">
      <bool>true</bool>
     </property>
@@ -226,9 +226,12 @@
       <pixmap>image/16/computer.png</pixmap>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEdit">
-     <property name="placeholderText">
+    <widget class="QLineEdit" name="ip_server">
+     <property name="text">
       <string>127.0.0.1</string>
+     </property>
+     <property name="placeholderText">
+      <string/>
      </property>
     </widget>
    </widget>
@@ -249,9 +252,12 @@
       <string>Port</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEdit_2">
+    <widget class="QLineEdit" name="port_server">
+     <property name="text">
+      <string>9098</string>
+     </property>
      <property name="placeholderText">
-      <string>9890</string>
+      <string>9098</string>
      </property>
     </widget>
    </widget>
@@ -262,7 +268,7 @@
      <x>0</x>
      <y>0</y>
      <width>887</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuNew">
@@ -368,7 +374,7 @@
     <property name="title">
      <string>Help</string>
     </property>
-    <addaction name="actionAbou"/>
+    <addaction name="actionAbout"/>
    </widget>
    <addaction name="menuNew"/>
    <addaction name="menuScreen"/>
@@ -624,7 +630,7 @@
     <string>Kill</string>
    </property>
   </action>
-  <action name="actionAbou">
+  <action name="actionAbout">
    <property name="icon">
     <iconset>
      <normaloff>image/16/about.png</normaloff>image/16/about.png</iconset>
@@ -635,5 +641,22 @@
   </action>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>actionAbout</sender>
+   <signal>triggered()</signal>
+   <receiver>statusbar</receiver>
+   <slot>update()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>443</x>
+     <y>758</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
