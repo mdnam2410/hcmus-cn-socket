@@ -15,19 +15,19 @@ def header_indices(header):
             break
     return (0, p, t)
 
-def get_running_process() -> str:
-    # Query the processes
-    output = io.StringIO(os.popen('wmic process get processid, threadcount, description').read())
-    
-    header = output.readline()
-    (d, p, t) = header_indices(header)
-    L = ''
-    for line in output.readlines():
-        line = line[0:len(line) - 1]
-        if line != '':
-            L += line[d:p].rstrip() + ',' + line[p:t].rstrip() + ',' + line[t:len(line)].rstrip() + '\n'
-
+def _get_process():
+    s = os.popen('wmic process get processid, threadcount, description').read()
+    s = s.strip()
+    L = []
+    processes = s.split('\n\n')
+    processes = processes[1:]
+    for p in processes:
+        L.append(p.split())
     return L
+
+def get_running_process() -> str:
+    processes = _get_process()
+    return '\n'.join([','.join(info) for info in processes])
 
 def get_running_applications():
     # Get a set of PID of running applications
@@ -40,24 +40,15 @@ def get_running_applications():
     if r.returncode != 0:
         return None
     r = r.stdout.decode('ascii')
-    s = set()
-    for pid in r.splitlines():
-        if pid != '':
-            s.add(pid.strip())
+    print(r.strip().split())
+    pids = set(r.strip().split())
 
-    # Get processes information
-    output = io.StringIO(os.popen('wmic process get processid, threadcount, description').read())
-    header = output.readline()
-    (d, p, t) = header_indices(header)
-    L = ''
-    for line in output.readlines():
-        line = line[0:len(line) - 1]
-        if line != '':
-            pid = line[p:t].rstrip()
-            # Join with s
-            if pid in s:
-                L += line[d:p].rstrip() + ',' + pid + ',' + line[t:].rstrip() + '\n'
-    return L
+    result = []
+    processes = _get_process()
+    for process in processes:
+        if process[1] in pids:
+            result.append(process)
+    return '\n'.join([','.join(info) for info in result])
 
 def start(name):
     name = name[0:len(name) - 1] # Remove new line
