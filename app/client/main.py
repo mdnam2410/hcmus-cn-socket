@@ -102,7 +102,7 @@ class ClientFlow(QMainWindow):
 
         self.stream_btn.clicked.connect(self.stream)
         self.actionStart_stream.triggered.connect(self.stream)
-        self.stop_stream_btn.clicked.connect(self.portal.stop_stream)
+        self.stop_stream_btn.clicked.connect(self.stop_stream)
         self.actionStop_stream.triggered.connect(self.stop_stream)
 
         self.actionViewFile.triggered.connect(self.file_view)
