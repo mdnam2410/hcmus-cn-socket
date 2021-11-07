@@ -1,4 +1,4 @@
-# import win32api as a
+import win32api as a
 import os
 import shutil
 
@@ -19,5 +19,7 @@ import shutil
 
 #os.remove("D:\\Maxminlevel\\a.txt")
 #shutil.move("D:\\Maxminlevel\\a.txt","D:\\Maxminlevel\\c.txt")
-print("D:\\Maxminlevel\\b")
-shutil.move("D:\\Maxminlevel\\a","D:\\Maxminlevel\\b")
+# print("D:\\Maxminlevel\\b")
+# shutil.move("D:\\Maxminlevel\\a","D:\\Maxminlevel\\b")
+
+print(os.stat("D:\\Maxminlevel\\b.txt").st_size)

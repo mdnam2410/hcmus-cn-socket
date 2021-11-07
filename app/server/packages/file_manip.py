@@ -24,19 +24,21 @@ def all_list(path: str):
         res = []
         try:
             # path be like this: C:\\Folder
+            path += "\\*"
             raw = win32api.FindFiles(path)
             if len(raw) != 0:
                 for i in raw:
                     res.append(i[-2])
-            print(res)
         except:
             raise Exception("Command cannot execute")
         finally:
-            return str(res)
+            return ', '.join(res)
 
 def rename_file(pathDestDir: str, old_name: str, new_name: str):
     filePath = os.path.join(pathDestDir, old_name)
     newFilePath = os.path.join(pathDestDir, new_name)
+    print(filePath)
+    print(newFilePath)
     try:
         shutil.move(filePath, newFilePath)
     except:
@@ -44,6 +46,7 @@ def rename_file(pathDestDir: str, old_name: str, new_name: str):
     return 1
 
 def remove_F(filePath: str):
+    print(filePath)
     if os.path.isfile(filePath):
         os.remove(filePath)
     elif os.path.isdir(filePath):

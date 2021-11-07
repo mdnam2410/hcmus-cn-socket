@@ -290,22 +290,19 @@ class Service:
             if data is None:
                 status_code = protocol.SC_FILE_CANNOT_GET_FILE
         elif option == 'rename':
-            content = content.split(", ")
-            if len(content) < 3:
+            content = content.split(", ", 3)
+            pathDestDir, newName, newName = content
+            if not file_manip.rename_file(pathDestDir, newName, newName):
                 status_code = protocol.SC_FILE_CANNOT_RENAME
-            else:
-                pathDestDir, oldName, newName = content
-                if not file_manip.rename_file(pathDestDir, oldName, newName):
-                    status_code = protocol.SC_FILE_CANNOT_RENAME
         elif option == "send":
-            content = content.split(", ")
-            if len(content) < 3:
+            print(len(content))
+            print(content)
+            content = content.split(", ", 3)
+            print(len(content))
+            print(content)
+            pathDestDir, newName, data_file = content
+            if not file_manip.receive_to_server(pathDestDir, newName, data_file):
                 status_code = protocol.SC_FILE_CANNOT_SEND
-            else:
-                pathDestDir, oldName, newName = content
-                # get name file
-                if not file_manip.receive_to_server(pathDestDir, oldName, newName):
-                    status_code = protocol.SC_FILE_CANNOT_SEND
         elif option == "del":
             path = content
             if not file_manip.remove_F(path) :
