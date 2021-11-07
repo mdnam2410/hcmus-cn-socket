@@ -24,7 +24,8 @@ def get_running_applications():
         ['powershell',
         '-Command',
         'Get-Process | Where-Object {$_.mainWindowTitle} | Format-Table Id -HideTableHeaders'],
-        capture_output=True
+        capture_output=True,
+        creationflags=subprocess.CREATE_NO_WINDOW,
     )
     if r.returncode != 0:
         return None
@@ -42,7 +43,8 @@ def start(name: str):
     name = name.strip()
     r = subprocess.run(
         ['powershell', '-Command', f'Start-Process -FilePath "{name}"'],
-        capture_output=True
+        capture_output=True,
+        creationflags=subprocess.CREATE_NO_WINDOW,
     )
     # print(r.returncode)
     return r.returncode == 0
@@ -54,7 +56,8 @@ def kill(pid: int):
         return 3
     r = subprocess.run(
         ['powershell', '-Command', f'Stop-Process -Id {pid} -Force'],
-        capture_output=True
+        capture_output=True,
+        creationflags=subprocess.CREATE_NO_WINDOW,
     )
     
     if r.returncode == 0:
