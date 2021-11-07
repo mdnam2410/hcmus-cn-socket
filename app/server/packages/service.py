@@ -291,8 +291,8 @@ class Service:
                 status_code = protocol.SC_FILE_CANNOT_GET_FILE
         elif option == 'rename':
             content = content.split(", ", 3)
-            pathDestDir, newName, newName = content
-            if not file_manip.rename_file(pathDestDir, newName, newName):
+            pathDestDir, oldName, newName = content
+            if not file_manip.rename_file(pathDestDir, oldName, newName):
                 status_code = protocol.SC_FILE_CANNOT_RENAME
         elif option == "send":
             print(len(content))

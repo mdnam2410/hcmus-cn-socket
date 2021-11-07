@@ -110,24 +110,34 @@ class ClientFlow(QMainWindow):
         self.file_back_btn.clicked.connect(self.file_view_previous)
 
         self.file_rename_btn.clicked.connect(self.file_rename)
-        self.file_down_btn.clicked.connect(lambda: self.portal.get_file())
+        self.file_down_btn.clicked.connect(self.file_get)
         self.file_upload_btn.clicked.connect(self.file_send)
         self.file_del_btn.clicked.connect(self.file_delete)
 
         self.file_list.cellClicked.connect(self.file_cell_was_clicked)
         self.file_list.doubleClicked.connect(self.file_view_advanced)
 
+    def file_get(self):
+        print(self.data.path[-1], self.data.currentF)
+        r = self.portal.get_file(self.data.path[-1], self.data.currentF)
+        file_name = QFileDialog.getSaveFileName()[0]
+        with open(file_name, 'w') as f:
+            f.write(r.content().decode(protocol.MESSAGE_ENCODING))
+            self.statusbar.showMessage(r.status_message())
+
     def file_delete(self):
-        path = self.data.path[-1] + self.data.currentF
+        path = self.data.path[-1] + '\\' + self.data.currentF
         self.portal.delete_file(path)
 
     def file_cell_was_clicked(self, row, column):
-        #print("Row %d and Column %d was clicked" % (row, column))
-        self.data.currentF = self.data.listF[-1][row].strip()
+        s = self.data.listF[-1][row]
+        s = s.strip()
+        # if s.find(' '):
+        #     s = '\"' + s + "\""
+        self.data.currentF = s
         print("Selected: "+self.data.currentF)
 
     def file_send(self):
-        self.statusbar.showMessage("Open file")
         try:
             file_name = QFileDialog.getOpenFileName()[0]
             print(file_name)
@@ -159,9 +169,6 @@ class ClientFlow(QMainWindow):
         except:
             self.statusbar.showMessage('Not connect server.')
     
-    def file_choose(self) -> str:
-        pass
-
     def file_view_previous(self):
         if len(self.data.path) > 1:
             self.data.path.pop()

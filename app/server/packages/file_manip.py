@@ -35,6 +35,7 @@ def all_list(path: str):
             return ', '.join(res)
 
 def rename_file(pathDestDir: str, old_name: str, new_name: str):
+    print(pathDestDir, old_name, new_name)
     filePath = os.path.join(pathDestDir, old_name)
     newFilePath = os.path.join(pathDestDir, new_name)
     print(filePath)
@@ -67,8 +68,9 @@ def receive_to_server(folderPath: str, fileName: str, content):
 def send_to_client(folderPath: str, fileName: str):
     r = ''
     filePath = os.path.join(folderPath, fileName)
-    if not os.path.exists(folderPath):
-        os.makedirs(folderPath)
-    with open(filePath, 'r') as f:
-        r = f.read()
-    return r
+    if os.path.isdir(filePath):
+        raise Exception("It not a file to download.")
+    else:
+        with open(filePath, 'r') as f:
+            r = f.read()
+        return r
