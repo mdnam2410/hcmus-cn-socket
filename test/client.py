@@ -55,6 +55,22 @@ if __name__ == '__main__':
         elif c == "restart":
             r = p.restart()
             print(r.status_message())
+        elif c == 'registry':
+            while True:
+                key = value = data_type = new_data = ''
+                option = input('[get|set|delete|create-key|delete-key|exit]: ')
+                if option == 'exit':
+                    break
+                if option not in ['get', 'set', 'delete', 'create-key', 'delete-key']:
+                    continue
+                key = input('Key: ')
+                if option in ['get', 'set', 'delete']:
+                    value = input('Value: ')
+                if option == 'set':
+                    data_type = input('Data type: ')
+                    new_data = input('New data: ')
+                r = p._registry_wrapper('reg', option, key, value, data_type, new_data)
+                print(r.content())
         elif c == 'keyboard':
             while True:
                 o = input('[hook|unhook|lock|unlock|exit]: ')

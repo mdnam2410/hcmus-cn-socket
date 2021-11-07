@@ -223,8 +223,7 @@ class Service:
             if not reg_manip.import_file(content):
                 status_code = protocol.SC_REGISTRY_CANNOT_IMPORT_FILE
         else:
-            # bug here, not all command have full 4 parameter
-            key, value, type, d = tuple(content.split(',', 3))
+            key, value, data_type, new_data = tuple(content.split(',', 3))
             if option == 'get':
                 result = reg_manip.get(key, value)
                 if not result:
@@ -232,7 +231,7 @@ class Service:
                 else:
                     data = result
             elif option == 'set':
-                if not reg_manip.set(key, value, type, d):
+                if not reg_manip.set(key, value, data_type, new_data):
                     status_code = protocol.SC_REGISTRY_CANNOT_SET_VALUE
             elif option == 'delete':
                 if not reg_manip.delete(key, value):

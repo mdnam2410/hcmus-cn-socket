@@ -96,16 +96,18 @@ def get(key, value):
     except subprocess.CalledProcessError:
         return None
 
-def set(key, value, type, data):
-    data_type_dict = {
-        'String':'REG_SZ',
-        'Multi-String':'REG_MULTI_SZ',
-        'DWORD':'REG_DWORD',
-        'QWORD':'REG_QWORD',
-        'Binary':'REG_BINARY',
-        'Expandable String':'REG_EXPAND_SZ'
-    }
-    args = ['reg', 'add', key, '/v', value, '/t', data_type_dict[type], '/d', data, '/f']
+def set(key, value, data_type, new_data):
+    # data_type_dict = {
+    #     'String':'REG_SZ',
+    #     'Multi-String':'REG_MULTI_SZ',
+    #     'DWORD':'REG_DWORD',
+    #     'QWORD':'REG_QWORD',
+    #     'Binary':'REG_BINARY',
+    #     'Expandable String':'REG_EXPAND_SZ'
+    # }
+    if ' ' in new_data:
+        new_data = f'\"{new_data}\"'
+    args = ['reg', 'add', key, '/v', value, '/t', data_type, '/d', new_data, '/f']
     return os.system(' '.join(args)) == 0
 
 def delete(key, value):

@@ -271,28 +271,36 @@ class Portal:
         """
         return self.request('reg', 'send', registry_file)
 
-    def get_registry(self, path_to_registry) -> protocol.Response:
+    def _registry_wrapper(self, command, option, key, value='', data_type='', new_data=''):
+        body = ','.join([key, value, data_type, new_data])
+        print(body)
+        return self.request(command, option, body)
+
+    def get_registry(self, key, value) -> protocol.Response:
         """Gets the value of the registry
 
         Args:
-            path_to_registry (str): Path to the registry
+            key (str): Path to key
+            value (str): Value name
 
         Returns:
-            app.core.protocol.Response: On success, returns the value of the
+            app.core.protocol.Response: On success, returns the data of the
             registry
 
         Raises:
             app.core.exceptions.ServerError
         """
-        return self.request('reg', 'get', path_to_registry)
+        return self._registry_wrapper('reg', 'get', key, value)
 
-    def set_registry(self, path_to_registry: str, new_value: str, value_type: str) -> protocol.Response:
+    def set_registry(self, key: str, value: str, data_type: str, new_data: str) -> protocol.Response:
         """Sets new value for the registry
 
         Args:
-            path_to_registry (str): Path to registry
-            new_value (str): New value
-            value_type (str): See `server.packages.reg_manip.set`
+            key (str): Path to registry
+            value (str): Value name
+            data_type (str): Must be one of 'REG_SZ', 'REG_MULTI_SZ',
+            'REG_DWORD', 'REG_QWORD', 'REG_BINARY', 'REG_EXPAND_SZ'
+            new_data (str): New data
 
         Returns:
             app.core.protocol.Response
@@ -300,14 +308,14 @@ class Portal:
         Raises:
             app.core.exceptions.ServerError
         """
-        d = ','.join([path_to_registry, new_value, value_type])
-        return self.request('reg', 'set', d)
+        return self._registry_wrapper('reg', 'set', key, value, data_type, new_data)
 
-    def delete_registry(self, path_to_registry: str) -> protocol.Response:
+    def delete_registry(self, key: str, value: str) -> protocol.Response:
         """Deletes a registry
 
         Args:
-            path_to_registry (str): Path to registry
+            key (str): Path to key
+            value (str): Value name
 
         Returns:
             app.core.protocol.Response
@@ -315,13 +323,13 @@ class Portal:
         Raises:
             app.core.exceptions.ServerError
         """
-        return self.request('reg', 'delete', path_to_registry)
+        return self._registry_wrapper('reg', 'delete', key, value)
 
     def create_registry_key(self, key: str) -> protocol.Response:
         """Creates a new registry key
 
         Args:
-            key (str): A new key name
+            key (str): Path to new key
 
         Returns:
             app.core.protocol.Response
@@ -329,13 +337,13 @@ class Portal:
         Raises:
             app.core.exceptions.ServerError
         """
-        return self.request('reg', 'create-key', key)
+        return self._registry_wrapper('reg', 'create-key', key)
 
-    def delete_registry_key(self, path_to_registry: str) -> protocol.Response:
+    def delete_registry_key(self, key: str) -> protocol.Response:
         """Deletes a registry key
 
         Args:
-            path_to_registry (str): Path to registry key
+            key (str): Path to key
 
         Returns:
             app.core.protocol.Response
@@ -343,7 +351,7 @@ class Portal:
         Raises:
             app.core.exceptions.ServerError
         """
-        return self.request('reg', 'delete-key', path_to_registry)
+        return self._registry_wrapper('reg', 'delete-key', key)
     
     
     # ---- Machine ----
