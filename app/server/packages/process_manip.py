@@ -29,7 +29,6 @@ def get_running_applications():
     if r.returncode != 0:
         return None
     r = r.stdout.decode('ascii')
-    print(r.strip().split())
     pids = set(r.strip().split())
 
     result = []
@@ -39,18 +38,22 @@ def get_running_applications():
             result.append(process)
     return '\n'.join([','.join(info) for info in result])
 
-def start(name):
-    name = name[0:len(name) - 1] # Remove new line
+def start(name: str):
+    name = name.strip()
     r = subprocess.run(
         ['powershell', '-Command', f'Start-Process -FilePath "{name}"'],
         capture_output=True
     )
-    print(r.returncode)
+    # print(r.returncode)
     return r.returncode == 0
 
-def kill(pid):
+def kill(pid: int):
+    try:
+        pid = int(pid)
+    except Exception:
+        return 3
     r = subprocess.run(
-        ['powershell', '-Command', f'Stop-Process -ID {pid}'],
+        ['powershell', '-Command', f'Stop-Process -Id {pid} -Force'],
         capture_output=True
     )
     

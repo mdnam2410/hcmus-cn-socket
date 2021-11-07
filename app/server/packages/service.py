@@ -168,6 +168,7 @@ class Service:
         status_code = protocol.SC_OK
         data = ''
 
+        content = content.decode(protocol.MESSAGE_ENCODING)
         if option == 'list':
             data = process_manip.get_running_process()
         elif option == 'start':
@@ -185,6 +186,7 @@ class Service:
         status_code = protocol.SC_OK
         data = ''
 
+        content = content.decode(protocol.MESSAGE_ENCODING)
         if option == 'list':
             data = process_manip.get_running_applications()
         elif option == 'start':

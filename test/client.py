@@ -28,6 +28,10 @@ if __name__ == '__main__':
             pid = int(input('PID to kill: '))
             r = p.kill_app(pid)
             print(r.status_message())
+        elif c == 'app start':
+            n = input('App name to start: ')
+            r = p.start_app(n)
+            print(r.status_message())
         elif c == 'mac':
             r = p.get_mac_address()
             print(r.content())
