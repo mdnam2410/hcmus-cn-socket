@@ -297,7 +297,7 @@ class Service:
         elif option == "send":
             print(len(content))
             print(content)
-            content = content.split(", ", 3)
+            content = tuple(content.split(", ", 2))
             print(len(content))
             print(content)
             pathDestDir, newName, data_file = content
