@@ -295,11 +295,8 @@ class Service:
             if not file_manip.rename_file(pathDestDir, oldName, newName):
                 status_code = protocol.SC_FILE_CANNOT_RENAME
         elif option == "send":
-            print(len(content))
-            print(content)
             content = tuple(content.split(", ", 2))
             print(len(content))
-            print(content)
             pathDestDir, newName, data_file = content
             if not file_manip.receive_to_server(pathDestDir, newName, data_file):
                 status_code = protocol.SC_FILE_CANNOT_SEND

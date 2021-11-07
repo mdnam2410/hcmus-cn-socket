@@ -53,7 +53,7 @@ def remove_F(filePath: str):
     elif os.path.isdir(filePath):
         shutil.rmtree(filePath)
     else:
-        raise Exception("Path not exists")
+        # raise Exception("Path not exists")
         return 0
     return 1
 

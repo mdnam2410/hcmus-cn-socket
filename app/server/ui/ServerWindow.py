@@ -21,7 +21,7 @@ class ServerWindow(ui.Windows):
         ui.loadIcon(self, 'SP_VistaShield')
 
     def start(self):
-        print("Start")
+        logging.debug("Start")
         self.control_btn.setText("Disconnect client")
         self.control_btn.clicked.disconnect(self.start)
         self.control_btn.clicked.connect(self.stop)
@@ -29,10 +29,9 @@ class ServerWindow(ui.Windows):
             self.service.start()
         self.service_thread = threading.Thread(target=target)
         self.service_thread.start()
-        pass
 
     def stop(self):
-        print("Stop")
+        logging.debug("Stop")
         self.service.stop()
         self.control_btn.setText("Start server")
         self.control_btn.clicked.disconnect(self.stop)
