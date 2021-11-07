@@ -118,16 +118,22 @@ class ClientFlow(QMainWindow):
         self.file_list.doubleClicked.connect(self.file_view_advanced)
 
     def file_get(self):
-        print(self.data.path[-1], self.data.currentF)
-        r = self.portal.get_file(self.data.path[-1], self.data.currentF)
-        file_name = QFileDialog.getSaveFileName()[0]
-        with open(file_name, 'w') as f:
-            f.write(r.content().decode(protocol.MESSAGE_ENCODING))
-            self.statusbar.showMessage(r.status_message())
+        try:
+            print(self.data.path[-1], self.data.currentF)
+            r = self.portal.get_file(self.data.path[-1], self.data.currentF)
+            file_name = QFileDialog.getSaveFileName()[0]
+            with open(file_name, 'w') as f:
+                f.write(r.content().decode(protocol.MESSAGE_ENCODING))
+                self.statusbar.showMessage(r.status_message())
+        except:
+            pass
 
     def file_delete(self):
-        path = self.data.path[-1] + '\\' + self.data.currentF
-        self.portal.delete_file(path)
+        try:
+            path = self.data.path[-1] + '\\' + self.data.currentF
+            self.portal.delete_file(path)
+        except:
+            pass
 
     def file_cell_was_clicked(self, row, column):
         s = self.data.listF[-1][row]
@@ -295,7 +301,6 @@ class ClientFlow(QMainWindow):
                 row = content[i].split(",")
                 for j in range(3):
                     item = QTableWidgetItem(row[j])
-                    item.setFlags(Qt.ItemIsEnabled)
                     self.app_list.setItem(i, j, item)
                 data.append(row)
             self.data.app = data
@@ -343,7 +348,6 @@ class ClientFlow(QMainWindow):
                 row = content[i].split(",")
                 for j in range(3):
                     item = QTableWidgetItem(row[j])
-                    item.setFlags(Qt.ItemIsEnabled)
                     self.proc_list.setItem(i, j, item)
                 data.append(row)
             self.data.process = data

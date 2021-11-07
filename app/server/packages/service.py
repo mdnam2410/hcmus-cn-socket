@@ -20,8 +20,11 @@ class Service:
     requests
     """
     def __init__(self):
-        # self.addr = socket.gethostbyname(socket.gethostname())
-        self.addr = '127.0.0.1'
+        print(socket.gethostname())
+        self.addr = socket.gethostbyname(socket.gethostname())
+        print(self.addr)
+        #self.addr = '192.168.1.3'
+        #self.addr = '127.0.0.1'
         self.port = protocol.SERVER_PORT
 
         self.listen_socket = None
@@ -58,6 +61,7 @@ class Service:
 
         while True:
             self.client_socket, _ = self.listen_socket.accept()
+            print(self.client_socket.getsockname(), self.client_socket.getpeername() )
             if self.close_signal:
                 break
             logging.debug(f'Connected to client {self.client_socket.getpeername()}, using socket {self.client_socket.getsockname()}')
