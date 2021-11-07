@@ -112,14 +112,18 @@ class ClientFlow(QMainWindow):
         self.file_rename_btn.clicked.connect(self.file_rename)
         self.file_down_btn.clicked.connect(lambda: self.portal.get_file())
         self.file_upload_btn.clicked.connect(self.file_send)
-        self.file_del_btn.clicked.connect(self.portal.delete_file)
+        self.file_del_btn.clicked.connect(self.file_delete)
 
         self.file_list.cellClicked.connect(self.file_cell_was_clicked)
         self.file_list.doubleClicked.connect(self.file_view_advanced)
 
+    def file_delete(self):
+        path = self.data.path[-1] + self.data.currentF
+        self.portal.delete_file(path)
+
     def file_cell_was_clicked(self, row, column):
         #print("Row %d and Column %d was clicked" % (row, column))
-        self.data.currentF = self.data.listF[-1][row]
+        self.data.currentF = self.data.listF[-1][row].strip()
         print("Selected: "+self.data.currentF)
 
     def file_send(self):
@@ -140,8 +144,7 @@ class ClientFlow(QMainWindow):
     @QtCore.pyqtSlot(QtCore.QModelIndex)
     def file_view_advanced(self, index):
         row = index.row()
-        print(self.data.listF[-1][row])
-        self.pathFile.setText(self.data.path[-1]+self.data.listF[-1][row])
+        self.pathFile.setText(self.data.path[-1]+self.data.listF[-1][row].strip())
         self.file_view()
 
     def file_rename(self):
