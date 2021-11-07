@@ -1,3 +1,5 @@
+from os import path
+from app import core
 from app.core.exceptions import ReceivingError, SendingError
 import app.core.protocol as protocol
 import app.server.packages.keyboard_manip as keyboard_manip
@@ -5,6 +7,7 @@ import app.server.packages.machine_manip as machine_manip
 import app.server.packages.process_manip as process_manip
 import app.server.packages.reg_manip as reg_manip
 import app.server.packages.screen_manip as screen_manip
+import app.server.packages.file_manip as file_manip
 from app.server.packages.stream_manip import StreamService
 
 import socket
@@ -33,6 +36,7 @@ class Service:
             'keylogging': self._request_keylogging,
             'reg': self._request_registry,
             'machine': self._request_machine,
+            'file': self._request_file
         }
 
         self.stream_service = StreamService()
@@ -267,4 +271,43 @@ class Service:
         elif option == "restart":
             if not machine_manip.restart():
                 status_code = protocol.SC_MACHINE_CANNOT_RESTART
+        return protocol.Response(status_code, data.encode(protocol.MESSAGE_ENCODING))
+
+    def _request_file(self, option, content) -> protocol.Response:
+        status_code = protocol.SC_OK
+        data = ''
+        content = content.decode(protocol.MESSAGE_ENCODING)
+
+        if option == 'list':
+            pathDestDir = content
+            print(pathDestDir)
+            data = file_manip.all_list(pathDestDir)
+            if data is None:
+                status_code = protocol.SC_FILE_CANNOT_GET_LIST
+        elif option == 'down':
+            path, name = content.split(', ')
+            data = file_manip.send_to_client(path, name)
+            if data is None:
+                status_code = protocol.SC_FILE_CANNOT_GET_FILE
+        elif option == 'rename':
+            content = content.split(", ")
+            if len(content) < 3:
+                status_code = protocol.SC_FILE_CANNOT_RENAME
+            else:
+                pathDestDir, oldName, newName = content
+                if not file_manip.rename_file(pathDestDir, oldName, newName):
+                    status_code = protocol.SC_FILE_CANNOT_RENAME
+        elif option == "send":
+            content = content.split(", ")
+            if len(content) < 3:
+                status_code = protocol.SC_FILE_CANNOT_SEND
+            else:
+                pathDestDir, oldName, newName = content
+                # get name file
+                if not file_manip.receive_to_server(pathDestDir, oldName, newName):
+                    status_code = protocol.SC_FILE_CANNOT_SEND
+        elif option == "del":
+            path = content
+            if not file_manip.remove_F(path) :
+                status_code = protocol.SC_FILE_CANNOT_DELETE
         return protocol.Response(status_code, data.encode(protocol.MESSAGE_ENCODING))

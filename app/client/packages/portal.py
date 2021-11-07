@@ -413,9 +413,60 @@ class Portal:
 
     # ---- File system ----
 
-    def get_file_system_tree(self) -> protocol.Response:
-        # TODO: define protocol for file system tree
-        pass
+    def get_list_F(self, path: str = "disk") -> protocol.Response:
+        """Gets list file and folder
+
+        Returns:
+            app.core.protocol.Response
+
+        Raises:
+            app.core.exceptions.ServerError
+        """
+        return self.request('file', 'list', path)
+
+    def get_file(self, path: str, name_file: str = None) -> protocol.Response:
+        """Download file
+
+        Returns:
+            app.core.protocol.Response
+
+        Raises:
+            app.core.exceptions.ServerError
+        """
+        return self.request('file', 'down', ', '.join([path, name_file]))
+
+    def rename_F(self, path: str, old_name: str = None, new_name: str = None) -> protocol.Response:
+        """Rename file or folder
+
+        Returns:
+            app.core.protocol.Response
+
+        Raises:
+            app.core.exceptions.ServerError
+        """
+        return self.request('file', 'rename', ', '.join([path, old_name, new_name]))
+
+    def send_file(self, path: str, dest_name: str, data_file: str) -> protocol.Response:
+        """Upload file
+
+        Returns:
+            app.core.protocol.Response
+
+        Raises:
+            app.core.exceptions.ServerError
+        """
+        return self.request('file', 'send', ', '.join([path, dest_name, data_file]))
+
+    def delete_file(self, path: str) -> protocol.Response:
+        """Delete file
+
+        Returns:
+            app.core.protocol.Response
+
+        Raises:
+            app.core.exceptions.ServerError
+        """
+        return self.request('file', 'del', path)
 
 if __name__ == '__main__':
     # First, create a protal object

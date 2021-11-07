@@ -11,3 +11,5 @@ class ServerError(Exception):
 class ClientError(Exception):
     def __init__(self, message) -> None:
         super().__init__(message)
+
+# decorator for print Exception

