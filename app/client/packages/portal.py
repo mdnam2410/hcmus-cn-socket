@@ -64,7 +64,7 @@ class Portal:
         Raises:
             app.core.exceptions.ServerError
         """
-        vs = ScreenStream()
+        vs = ScreenStream(self.s.getsockname()[0])
         response = self.request('stream', '', '')
         if not response.ok():
             vs = None

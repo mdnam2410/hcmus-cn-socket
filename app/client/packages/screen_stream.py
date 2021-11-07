@@ -9,14 +9,14 @@ import socket
 import threading
 
 class ScreenStream:
-    def __init__(self):
+    def __init__(self, addr):
         """Initializes the screen stream object
 
         This object should be created before sending the video stream request
         to the server. The ScreenStream object will wait for connection from
         the server, receive the frames and deliver back to the client.
         """
-        self.addr = ('127.0.0.1', protocol.VIDEO_STREAM_PORT)
+        self.addr = (addr, protocol.VIDEO_STREAM_PORT)
         self.listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.listen_socket.bind(self.addr)
         self.data_socket = None
