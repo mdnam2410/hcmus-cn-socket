@@ -1,11 +1,13 @@
 import base64
 import io
+from os import path
 import threading
 from xml.etree.ElementTree import ProcessingInstruction, indent
 from PIL import Image
 from PyQt5 import uic
 import sys
 from PyQt5 import QtGui
+from PyQt5 import QtCore
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QStandardItemModel
 import numpy as np
@@ -35,12 +37,17 @@ class ClientFlow(QMainWindow):
         self.proc_list.setColumnWidth(0, 150)
         self.proc_list.setColumnWidth(1, 75)
         self.proc_list.setColumnWidth(3, 50)
+        self.app_list.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
+        self.proc_list.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
+        header = self.file_list.horizontalHeader()       
+        header.setSectionResizeMode(0, QHeaderView.Stretch)
 
     def run(self):
         self.show()
 
     def updateAfterConnect(self):
         self.get_mac()
+        self.file_view()
         self.portal.keyboard_hook()
         self.updateUIAfterConnect()
         
@@ -94,9 +101,98 @@ class ClientFlow(QMainWindow):
         self.actionSave.triggered.connect(self.save_img)
 
         self.stream_btn.clicked.connect(self.stream)
-        self.stop_stream_btn.clicked.connect(self.portal.stop_stream)
         self.actionStart_stream.triggered.connect(self.stream)
-        self.actionStop_stream.triggered.connect(self.portal.stop_stream)
+        self.stop_stream_btn.clicked.connect(self.portal.stop_stream)
+        self.actionStop_stream.triggered.connect(self.stop_stream)
+
+        self.actionViewFile.triggered.connect(self.file_view)
+        self.file_get_btn.clicked.connect(self.file_view)
+        self.file_back_btn.clicked.connect(self.file_view_previous)
+
+        self.file_rename_btn.clicked.connect(self.file_rename)
+        self.file_down_btn.clicked.connect(lambda: self.portal.get_file())
+        self.file_upload_btn.clicked.connect(self.file_send)
+        self.file_del_btn.clicked.connect(self.portal.delete_file)
+
+        self.file_list.cellClicked.connect(self.file_cell_was_clicked)
+        self.file_list.doubleClicked.connect(self.file_view_advanced)
+
+    def file_cell_was_clicked(self, row, column):
+        #print("Row %d and Column %d was clicked" % (row, column))
+        self.data.currentF = self.data.listF[-1][row]
+        print("Selected: "+self.data.currentF)
+
+    def file_send(self):
+        self.statusbar.showMessage("Open file")
+        try:
+            file_name = QFileDialog.getOpenFileName()[0]
+            print(file_name)
+            new_name = None
+            cnt = open(file_name).read()
+            text, ok = QInputDialog.getText(self, 'Input', 'New name')
+            if ok:
+                new_name = str(text)
+            r = self.portal.send_file(self.data.path[-1], new_name, cnt)
+            self.statusbar.showMessage(r.status_message())
+        except:
+            pass
+
+    @QtCore.pyqtSlot(QtCore.QModelIndex)
+    def file_view_advanced(self, index):
+        row = index.row()
+        print(self.data.listF[-1][row])
+        self.pathFile.setText(self.data.path[-1]+self.data.listF[-1][row])
+        self.file_view()
+
+    def file_rename(self):
+        new_name = None
+        try:
+            text, ok = QInputDialog.getText(self, 'Input', 'New name')
+            if ok:
+                new_name = str(text)
+            print(self.data.path[-1], self.data.currentF ,new_name)
+            r = self.portal.rename_F(self.data.path[-1], self.data.currentF ,new_name)
+            self.statusbar.showMessage(r.status_message())
+        except:
+            self.statusbar.showMessage('Not connect server.')
+    
+    def file_choose(self) -> str:
+        pass
+
+    def file_view_previous(self):
+        if len(self.data.path) > 1:
+            self.data.path.pop()
+            path = self.data.path[-1]
+            self.pathFile.setText(path)
+            self.data.listF.pop()
+            data = self.data.listF[-1]
+            self.file_list.setRowCount(len(data))
+            self.file_list.setColumnCount(1)
+            for i in range(len(data)):
+                item = QTableWidgetItem(data[i])
+                item.setFlags(Qt.ItemIsEnabled)
+                self.file_list.setItem(0, i, item)
+
+    def file_view(self):
+        try:
+            self.statusbar.showMessage('Show file list.')
+            path = self.pathFile.text()
+            r = None
+            if path == "":
+                r = self.portal.get_list_F("disk")
+            else:
+                r = self.portal.get_list_F(path)
+            data = r.content().decode(protocol.MESSAGE_ENCODING).split(',')
+            self.file_list.setRowCount(len(data))
+            self.file_list.setColumnCount(1)
+            for i in range(len(data)):
+                item = QTableWidgetItem(data[i])
+                item.setFlags(Qt.ItemIsEnabled)
+                self.file_list.setItem(0, i, item)
+            self.data.path.append(path)
+            self.data.listF.append(data)
+        except:
+            pass
 
     def save_img(self):
         try:
@@ -107,6 +203,12 @@ class ClientFlow(QMainWindow):
             # Ignore exceptions raised by filedialog
             pass
         pass
+    
+    def stop_stream(self):
+        self.stream_btn.setEnabled(1)
+        self.actionStart_stream.setEnabled(1)
+        # bug here
+        self.portal.stop_stream()
 
     def stream(self):
         r, vs = self.portal.initialize_screen_stream()
@@ -127,6 +229,8 @@ class ClientFlow(QMainWindow):
         t = threading.Thread(target=target, args=(vs,))
         t.start()
         self.portal.start_stream()
+        self.stream_btn.setDisabled(1)
+        self.actionStart_stream.setDisabled(1)
         
         
 
@@ -180,7 +284,9 @@ class ClientFlow(QMainWindow):
             for i in range(len(content)):
                 row = content[i].split(",")
                 for j in range(3):
-                    self.app_list.setItem(i, j, QTableWidgetItem(row[j]))
+                    item = QTableWidgetItem(row[j])
+                    item.setFlags(Qt.ItemIsEnabled)
+                    self.app_list.setItem(i, j, item)
                 data.append(row)
             self.data.app = data
         except:
@@ -226,7 +332,9 @@ class ClientFlow(QMainWindow):
             for i in range(len(content)):
                 row = content[i].split(",")
                 for j in range(3):
-                    self.proc_list.setItem(i, j, QTableWidgetItem(row[j]))
+                    item = QTableWidgetItem(row[j])
+                    item.setFlags(Qt.ItemIsEnabled)
+                    self.proc_list.setItem(i, j, item)
                 data.append(row)
             self.data.process = data
             self.statusbar.showMessage('Show process list.')

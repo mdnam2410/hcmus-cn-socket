@@ -28,7 +28,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="Proc">
      <attribute name="title">
@@ -125,7 +125,7 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>40</y>
+        <y>50</y>
         <width>391</width>
         <height>321</height>
        </rect>
@@ -468,7 +468,7 @@
      </item>
     </layout>
    </widget>
-   <widget class="QTableWidget" name="tableWidget">
+   <widget class="QTableWidget" name="file_list">
     <property name="geometry">
      <rect>
       <x>11</x>
@@ -498,7 +498,7 @@
        <item>
         <widget class="QLineEdit" name="pathFile">
          <property name="placeholderText">
-          <string>Directory path</string>
+          <string>Directory path (Ex: C:\)</string>
          </property>
         </widget>
        </item>
@@ -517,6 +517,13 @@
      </item>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_7">
+       <item>
+        <widget class="QPushButton" name="file_back_btn">
+         <property name="text">
+          <string>Back</string>
+         </property>
+        </widget>
+       </item>
        <item>
         <widget class="QPushButton" name="file_rename_btn">
          <property name="text">
@@ -653,8 +660,6 @@
      <string>File Control</string>
     </property>
     <addaction name="actionViewFile"/>
-    <addaction name="actionSendFile"/>
-    <addaction name="actionRemoveFile"/>
    </widget>
    <widget class="QMenu" name="menuAbout">
     <property name="title">

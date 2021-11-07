@@ -7,4 +7,6 @@ class Data(object):
         self.process = []
         self.app = []
         self.image = None
-        
+        self.path = ['']
+        self.listF = [[]]
+        self.currentF = None
