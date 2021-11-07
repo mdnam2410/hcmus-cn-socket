@@ -4,4 +4,6 @@ class Data(object):
         self.mac_addr = None
         self.ip_addr = None
         self.port = None
+        self.process = []
+        self.app = []
         
