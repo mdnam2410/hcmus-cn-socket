@@ -1,11 +1,18 @@
-from xml.etree.ElementTree import indent
+import base64
+import io
+import threading
+from xml.etree.ElementTree import ProcessingInstruction, indent
+from PIL import Image
 from PyQt5 import uic
 import sys
+from PyQt5 import QtGui
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QStandardItemModel
+import numpy as np
 
 from PyQt5.QtWidgets import QApplication, QDialog, QFileDialog, QHeaderView, QInputDialog, QLineEdit, QMainWindow, QPushButton, QTabWidget, QTableView, QTableWidget, QTableWidgetItem, QWidget
 from cv2 import NORM_HAMMING, sepFilter2D
+import cv2
 from app.client.Data import Data
 from app.client.packages.portal import *
 
@@ -69,11 +76,74 @@ class ClientFlow(QMainWindow):
         self.proc_start_btn.clicked.connect(self.startProcess)
         self.proc_kill_btn.clicked.connect(self.killProcess)
         #self.proc_list.cellClicked.connect(self.cell_was_clicked)
+        self.actionShowProc.triggered.connect(self.showProcessList)
+        self.actionStartProc.triggered.connect(self.startProcess)
+        self.actionKillProc.triggered.connect(self.killProcess)
+        
 
         self.app_get_btn.clicked.connect(self.showAppList)
         self.app_start_btn.clicked.connect(self.startApp)
         self.app_kill_btn.clicked.connect(self.killApp)
         #self.app_list.cellClicked.connect(self.cell_was_clicked)
+        self.actionShowApp.triggered.connect(self.showAppList)
+        self.actionStartApp.triggered.connect(self.startApp)
+        self.actionKillApp.triggered.connect(self.killApp)
+
+        self.screenshot_btn.clicked.connect(self.screenshot)
+        self.actionTake.triggered.connect(self.screenshot)
+        self.actionSave.triggered.connect(self.save_img)
+
+        self.stream_btn.clicked.connect(self.stream)
+        self.stop_stream_btn.clicked.connect(self.portal.stop_stream)
+        self.actionStart_stream.triggered.connect(self.stream)
+        self.actionStop_stream.triggered.connect(self.portal.stop_stream)
+
+    def save_img(self):
+        try:
+            path = QFileDialog.getSaveFileName(caption="Save file", filter="*.jpeg")[0]
+            self.data.image.save(path)
+            #self.original_image.save(path)
+        except:
+            # Ignore exceptions raised by filedialog
+            pass
+        pass
+
+    def stream(self):
+        r, vs = self.portal.initialize_screen_stream()
+        self.statusbar.showMessage(r.status_message())
+        if vs is None:
+            print('vs is none')
+            pass
+
+        def target(vs):
+            for frame in vs:
+                img = np.array(Image.open(io.BytesIO(frame)))
+                img = img[:, :, ::-1].copy()
+                img = QtGui.QImage(img.data, img.shape[1], img.shape[0], QtGui.QImage.Format_RGB888).rgbSwapped()
+                self.image.setPixmap(QtGui.QPixmap.fromImage(img))
+                self.data.image = img
+            print('Stream stop')
+
+        t = threading.Thread(target=target, args=(vs,))
+        t.start()
+        self.portal.start_stream()
+        
+        
+
+    def screenshot(self):
+        try:
+            r =self.portal.get_screenshot()
+            img = base64.urlsafe_b64decode(r.content())
+            self.data.image = Image.open(io.BytesIO(img))
+            # Resize here to make save file more quality and future feature: open stream, screenshot external
+            #img = img.resize(size=(360, 240), resample=Image.ANTIALIAS)
+            img = np.array(self.data.image)
+            img = img[:, :, ::-1].copy()
+            img = QtGui.QImage(img.data, img.shape[1], img.shape[0], QtGui.QImage.Format_RGB888).rgbSwapped()
+            self.image.setPixmap(QtGui.QPixmap.fromImage(img))
+        except:
+            self.statusbar.showMessage('Not connect server.')
+
     def startApp(self):
         app_name = None
         try:
@@ -83,7 +153,7 @@ class ClientFlow(QMainWindow):
             r = self.portal.start_app(app_name)
             self.statusbar.showMessage('Start app '+app_name+ ' -> '+ r.status_message())
         except:
-            pass
+            self.statusbar.showMessage('Not connect server.')
 
     def killApp(self):
         # choose row to kill
@@ -125,7 +195,7 @@ class ClientFlow(QMainWindow):
             r = self.portal.start_process(proc_name)
             self.statusbar.showMessage('Start process '+proc_name+ ' -> '+ r.status_message())
         except:
-            pass
+            self.statusbar.showMessage('Not connect server.')
 
     # bug here cannot kill notepad
     def killProcess(self):

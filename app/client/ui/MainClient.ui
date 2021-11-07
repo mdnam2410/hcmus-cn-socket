@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>901</width>
-    <height>775</height>
+    <width>905</width>
+    <height>770</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -238,59 +238,30 @@
      </layout>
     </widget>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QLabel" name="image">
     <property name="geometry">
      <rect>
       <x>490</x>
-      <y>10</y>
-      <width>397</width>
-      <height>321</height>
+      <y>50</y>
+      <width>391</width>
+      <height>271</height>
      </rect>
     </property>
-    <layout class="QVBoxLayout" name="verticalLayout_3">
-     <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_3">
-       <item>
-        <widget class="QLabel" name="label_3">
-         <property name="text">
-          <string>Screen of server</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="screenshot_btn">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="text">
-          <string>Screenshot</string>
-         </property>
-         <property name="icon">
-          <iconset>
-           <normaloff>image/16/screenshot.png</normaloff>image/16/screenshot.png</iconset>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="record_btn">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="text">
-          <string>Record</string>
-         </property>
-         <property name="icon">
-          <iconset>
-           <normaloff>image/16/recording.png</normaloff>image/16/recording.png</iconset>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <widget class="QGraphicsView" name="graphicsView"/>
-     </item>
-    </layout>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="pixmap">
+     <pixmap>image/fit.png</pixmap>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
    </widget>
    <widget class="QWidget" name="">
     <property name="geometry">
@@ -421,13 +392,74 @@
      </item>
     </layout>
    </widget>
+   <widget class="QWidget" name="">
+    <property name="geometry">
+     <rect>
+      <x>491</x>
+      <y>11</y>
+      <width>401</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <item>
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>Screen of server</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="screenshot_btn">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string>Screenshot</string>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>image/16/screenshot.png</normaloff>image/16/screenshot.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="stream_btn">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string>Stream</string>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>image/16/screenshare.png</normaloff>image/16/screenshare.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="stop_stream_btn">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string>Stop</string>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>image/16/stop.png</normaloff>image/16/stop.png</iconset>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>901</width>
+     <width>905</width>
      <height>26</height>
     </rect>
    </property>
@@ -455,26 +487,25 @@
     </widget>
     <widget class="QMenu" name="menuSharescreen">
      <property name="title">
-      <string>Sharescreen</string>
+      <string>Stream</string>
      </property>
      <property name="icon">
       <iconset>
        <normaloff>image/16/screenshare.png</normaloff>image/16/screenshare.png</iconset>
      </property>
-     <addaction name="actionTaek"/>
-     <addaction name="actionRecord"/>
+     <addaction name="actionStart_stream"/>
+     <addaction name="actionStop_stream"/>
     </widget>
     <addaction name="menuScreenshot"/>
     <addaction name="menuSharescreen"/>
-    <addaction name="actionConfiguration"/>
    </widget>
    <widget class="QMenu" name="menuProcess_App">
     <property name="title">
      <string>Process</string>
     </property>
-    <addaction name="actionStart"/>
-    <addaction name="actionStart_3"/>
-    <addaction name="actionKill"/>
+    <addaction name="actionShowProc"/>
+    <addaction name="actionStartProc"/>
+    <addaction name="actionKillProc"/>
    </widget>
    <widget class="QMenu" name="menuRegistry">
     <property name="title">
@@ -535,9 +566,18 @@
     </property>
     <addaction name="actionAbout"/>
    </widget>
+   <widget class="QMenu" name="menuApp">
+    <property name="title">
+     <string>App</string>
+    </property>
+    <addaction name="actionShowApp"/>
+    <addaction name="actionStartApp"/>
+    <addaction name="actionKillApp"/>
+   </widget>
    <addaction name="menuNew"/>
    <addaction name="menuScreen"/>
    <addaction name="menuProcess_App"/>
+   <addaction name="menuApp"/>
    <addaction name="menuRegistry"/>
    <addaction name="menuKeyboard"/>
    <addaction name="menuFile_Control"/>
@@ -699,22 +739,22 @@
     <string>Save</string>
    </property>
   </action>
-  <action name="actionTaek">
+  <action name="actionStart_stream">
    <property name="icon">
     <iconset>
      <normaloff>image/16/screenshare.png</normaloff>image/16/screenshare.png</iconset>
    </property>
    <property name="text">
-    <string>Take</string>
+    <string>Start</string>
    </property>
   </action>
-  <action name="actionRecord">
+  <action name="actionStop_stream">
    <property name="icon">
     <iconset>
      <normaloff>image/16/recording.png</normaloff>image/16/recording.png</iconset>
    </property>
    <property name="text">
-    <string>Record</string>
+    <string>Stop</string>
    </property>
   </action>
   <action name="actionConfiguration">
@@ -726,7 +766,7 @@
     <string>Configuration</string>
    </property>
   </action>
-  <action name="actionStart">
+  <action name="actionShowProc">
    <property name="icon">
     <iconset>
      <normaloff>image/16/view.png</normaloff>image/16/view.png</iconset>
@@ -771,7 +811,7 @@
     <string>Remove</string>
    </property>
   </action>
-  <action name="actionStart_3">
+  <action name="actionStartProc">
    <property name="icon">
     <iconset>
      <normaloff>image/16/start.png</normaloff>image/16/start.png</iconset>
@@ -780,7 +820,7 @@
     <string>Start</string>
    </property>
   </action>
-  <action name="actionKill">
+  <action name="actionKillProc">
    <property name="icon">
     <iconset>
      <normaloff>image/16/kill.png</normaloff>image/16/kill.png</iconset>
@@ -796,6 +836,33 @@
    </property>
    <property name="text">
     <string>About</string>
+   </property>
+  </action>
+  <action name="actionShowApp">
+   <property name="icon">
+    <iconset>
+     <normaloff>image/16/show.png</normaloff>image/16/show.png</iconset>
+   </property>
+   <property name="text">
+    <string>Show</string>
+   </property>
+  </action>
+  <action name="actionStartApp">
+   <property name="icon">
+    <iconset>
+     <normaloff>image/16/start.png</normaloff>image/16/start.png</iconset>
+   </property>
+   <property name="text">
+    <string>Start</string>
+   </property>
+  </action>
+  <action name="actionKillApp">
+   <property name="icon">
+    <iconset>
+     <normaloff>image/16/kill.png</normaloff>image/16/kill.png</iconset>
+   </property>
+   <property name="text">
+    <string>Kill</string>
    </property>
   </action>
  </widget>

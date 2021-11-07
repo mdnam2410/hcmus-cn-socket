@@ -31,7 +31,8 @@ class StreamService:
         self.is_streaming = False
         self.stop_signal = False
         self.SLEEP_BETWEEN_FRAMES = 1/20
-        self.FRAME_SIZE = (720, 480)
+        #self.FRAME_SIZE = (720, 480)
+        self.FRAME_SIZE = (360, 240)
 
     def is_running(self):
         return self.stream_socket is not None

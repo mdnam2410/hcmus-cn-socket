@@ -6,4 +6,5 @@ class Data(object):
         self.port = None
         self.process = []
         self.app = []
+        self.image = None
         

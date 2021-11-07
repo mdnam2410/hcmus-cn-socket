@@ -4,6 +4,8 @@ import io
 from mss import mss
 from PIL import Image
 
+FRAME_SIZE = (360, 240)
+
 def take_screenshot() -> bytes:
     """Takes a screenshot
 
@@ -23,6 +25,8 @@ def take_screenshot() -> bytes:
             size=(screenshot.width, screenshot.height),
             data=screenshot.rgb
         )
+        img = img.resize(size=FRAME_SIZE, resample=Image.ANTIALIAS)
+
         jpeg = io.BytesIO()
         img.save(jpeg, format='JPEG', quality=95)
         return base64.urlsafe_b64encode(jpeg.getvalue())
