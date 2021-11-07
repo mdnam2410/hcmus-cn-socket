@@ -1,23 +1,33 @@
+from xml.etree.ElementTree import indent
 from PyQt5 import uic
 import sys
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QStandardItemModel
 
-from PyQt5.QtWidgets import QApplication, QDialog, QFileDialog, QMainWindow
-from cv2 import sepFilter2D
+from PyQt5.QtWidgets import QApplication, QDialog, QFileDialog, QHeaderView, QInputDialog, QLineEdit, QMainWindow, QPushButton, QTabWidget, QTableView, QTableWidget, QTableWidgetItem, QWidget
+from cv2 import NORM_HAMMING, sepFilter2D
 from app.client.Data import Data
 from app.client.packages.portal import *
 
 class ClientFlow(QMainWindow):
     def __init__(self):
         super(ClientFlow, self).__init__()
-        uic.loadUi('./ui/MainClient.ui', self)
+        self.updateUIBeforeConnect()
         self.portal = Portal()
-        self.connectFunc()
         self.aboutWindow = self.About(self)
         self.registryWindow = self.Registry(self.portal, self)
         self.data = Data()
+        self.connectFunc()
 
-    def updateUI(self):
+    def updateUIAfterConnect(self):
         self.mac_addr.setText(self.data.mac_addr)
+
+    def updateUIBeforeConnect(self):
+        uic.loadUi('./ui/MainClient.ui', self)
+        self.setFixedSize(901, 775)
+        self.proc_list.setColumnWidth(0, 150)
+        self.proc_list.setColumnWidth(1, 75)
+        self.proc_list.setColumnWidth(3, 50)
 
     def run(self):
         self.show()
@@ -25,7 +35,7 @@ class ClientFlow(QMainWindow):
     def updateAfterConnect(self):
         self.get_mac()
         self.portal.keyboard_hook()
-        self.updateUI()
+        self.updateUIAfterConnect()
         
 
     def connectFunc(self):
@@ -34,17 +44,125 @@ class ClientFlow(QMainWindow):
         # when it disconnect the port will be in time wait state by TCP
         self.disconnect_btn.clicked.connect(self.disconnectServer)
         self.actionDisconnect.triggered.connect(self.disconnectServer)
+
         self.actionAbout.triggered.connect(self.about)
+
         self.actionShut_down.triggered.connect(self.portal.shut_down)
         self.actionLogout.triggered.connect(self.portal.log_out)
         self.actionSleep.triggered.connect(self.portal.sleep)
         self.actionRestart.triggered.connect(self.portal.restart)
+        
         self.actionRegistry.triggered.connect(self.registry)
+        
         self.actionHook.triggered.connect(self.portal.keyboard_hook)
         self.actionLock.triggered.connect(self.portal.keyboard_lock)
         self.actionUnlock.triggered.connect(self.portal.keyboard_unlock)
         self.actionUnhook.triggered.connect(self.keylogger)
         self.actionPrint.triggered.connect(self.keyloggerPrint)
+        self.key_hook_btn.clicked.connect(self.portal.keyboard_hook)
+        self.key_lock_btn.clicked.connect(self.portal.keyboard_lock)
+        self.key_unlock_btn.clicked.connect(self.portal.keyboard_unlock)
+        self.key_unhook_btn.clicked.connect(self.keylogger)
+        self.key_print_btn.clicked.connect(self.keyloggerPrint)
+
+        self.proc_get_btn.clicked.connect(self.showProcessList)
+        self.proc_start_btn.clicked.connect(self.startProcess)
+        self.proc_kill_btn.clicked.connect(self.killProcess)
+        #self.proc_list.cellClicked.connect(self.cell_was_clicked)
+
+        self.app_get_btn.clicked.connect(self.showAppList)
+        self.app_start_btn.clicked.connect(self.startApp)
+        self.app_kill_btn.clicked.connect(self.killApp)
+        #self.app_list.cellClicked.connect(self.cell_was_clicked)
+    def startApp(self):
+        app_name = None
+        try:
+            text, ok = QInputDialog.getText(self, 'Input', 'App name')
+            if ok:
+                app_name = str(text)
+            r = self.portal.start_app(app_name)
+            self.statusbar.showMessage('Start app '+app_name+ ' -> '+ r.status_message())
+        except:
+            pass
+
+    def killApp(self):
+        # choose row to kill
+        try:
+            indexes = self.app_list.selectionModel().selectedRows()
+            selected = None
+            for index in sorted(indexes):
+                selected = index.row()
+            app = self.data.app[selected]
+            r = self.portal.kill_app(app[1])
+            self.statusbar.showMessage('Kill app '+ app[0] +' -> '+ r.status_message())
+        except:
+            self.statusbar.showMessage('Please choose a row to kill.')
+    
+    def showAppList(self):
+        try:
+            self.statusbar.showMessage('Show app list.')
+            r = self.portal.list_apps()
+            content = r.content().decode(protocol.MESSAGE_ENCODING)
+            data = []
+            content = content.split("\n")
+            self.app_list.setRowCount(len(content))
+            self.app_list.setColumnCount(3)
+            for i in range(len(content)):
+                row = content[i].split(",")
+                for j in range(3):
+                    self.app_list.setItem(i, j, QTableWidgetItem(row[j]))
+                data.append(row)
+            self.data.app = data
+        except:
+            self.statusbar.showMessage('Not connect server.')
+
+    def startProcess(self):
+        proc_name = None
+        try:
+            text, ok = QInputDialog.getText(self, 'Input', 'Process name')
+            if ok:
+                proc_name = str(text)
+            r = self.portal.start_process(proc_name)
+            self.statusbar.showMessage('Start process '+proc_name+ ' -> '+ r.status_message())
+        except:
+            pass
+
+    # bug here cannot kill notepad
+    def killProcess(self):
+        # choose row to kill
+        try:
+            indexes = self.proc_list.selectionModel().selectedRows()
+            selected = None
+            for index in sorted(indexes):
+                selected = index.row()
+            proc = self.data.process[selected]
+            r = self.portal.kill_process(proc[1]).status_message()
+            print(r)
+            self.statusbar.showMessage('Kill process '+ proc[0] +' -> '+ r)
+        except:
+            self.statusbar.showMessage('Please choose a row to kill.')
+    
+    def cell_was_clicked(self, row, column):
+        print("Row %d and Column %d was clicked" % (row, column))
+
+    def showProcessList(self):
+        try:
+            r = self.portal.list_processes()
+            content = r.content().decode(protocol.MESSAGE_ENCODING)
+            data = []
+            content = content.split("\n")
+            self.proc_list.setRowCount(len(content))
+            self.proc_list.setColumnCount(3)
+            for i in range(len(content)):
+                row = content[i].split(",")
+                for j in range(3):
+                    self.proc_list.setItem(i, j, QTableWidgetItem(row[j]))
+                data.append(row)
+            self.data.process = data
+            self.statusbar.showMessage('Show process list.')
+        except:
+            self.statusbar.showMessage('Not connect server.')
+
 
     def keylogger(self):
         r = self.portal.keyboard_unhook()
@@ -61,8 +179,6 @@ class ClientFlow(QMainWindow):
         r = self.portal.get_mac_address()
         self.data.mac_addr = r.content().decode(protocol.MESSAGE_ENCODING)
         self.statusbar.showMessage(r.status_message())
-        
-
     class Registry(QDialog):        
         def __init__(self, portal: Portal = None, parent=None):
             super().__init__(parent)
@@ -93,6 +209,17 @@ class ClientFlow(QMainWindow):
                 'Create key',
                 'Delete key'
             ]
+
+            self.dataDictType = {
+                'String':'REG_SZ',
+                'Multi-String':'REG_MULTI_SZ',
+                'DWORD':'REG_DWORD',
+                'QWORD':'REG_QWORD',
+                'Binary':'REG_BINARY',
+                'Expandable String':'REG_EXPAND_SZ'
+            }
+
+            type = self.dataDictType[type]
             self.status.setText(" ".join([opt, path, value, data, type]))
             opt = self.MODIFICATION_TYPE.index(opt)
             try:
@@ -106,7 +233,7 @@ class ClientFlow(QMainWindow):
                     r = self.portal.create_registry_key(path)
                 elif opt == 4:
                     r = self.portal.delete_registry(path)
-                self.status.setText(r.content().decode(protocol.MESSAGE_ENCODING))
+                self.status.setText(r.content().decode(protocol.MESSAGE_ENCODING)+" "+r.status_message())
             except:
                 pass
 
