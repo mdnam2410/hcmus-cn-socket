@@ -1,5 +1,6 @@
 import os
 import subprocess
+import re
 
 def _get_process():
     s = os.popen('wmic process get processid, threadcount, description').read()
@@ -8,7 +9,9 @@ def _get_process():
     processes = s.split('\n\n')
     processes = processes[1:]
     for p in processes:
-        L.append(p.split())
+        m = re.match(r'^(.+?)\s+(\d+)\s+(\d+)\s*$', p)
+        if m != None:
+            L.append([m.group(i) for i in range(1, 4)])
     return L
 
 def get_running_process() -> str:
